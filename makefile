@@ -9,107 +9,66 @@ MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 
 
-# -------- Project directory layout -------- #
+# -------- Toolchain -------- #
 
-HEADERDIR=include
-HEADERS=$(wildcard $(HEADERDIR)/*.h)
+CROSS   := $(HOME)/cross/opt/bin
+CC      := $(CROSS)/i686-elf-gcc
+AS      := $(CROSS)/i686-elf-as
+LD      := $(CROSS)/i686-elf-ld
+OBJDUMP := $(CROSS)/i686-elf-objdump
 
-CONFIGDIR = cfg
-
-SOURCEDIR=src
-SOURCES=$(wildcard $(SOURCEDIR)/*.c)
-
-OBJDIR = lib
-OBJFILES  = $(patsubst $(SOURCEDIR)/%.c, $(OBJDIR)/%.o, $(SOURCES))
-
-OUTDIR = out
-main = main
+CFLAGS  := -std=gnu99 -ffreestanding -O2 -Wall -Wextra -Iinclude
+LDFLAGS := -T cfg/kernel.ld -ffreestanding -O2 -nostdlib -lgcc
 
 
-# -------- Toolchain options -------- #
+# -------- Directories -------- #
 
-CC = gcc
-#CC = clang
+SRCDIR  := src
+ASDIR   := as
+INCDIR  := include
+OBJDIR  := lib
+OUTDIR  := out
+ISODIR  := $(OUTDIR)/iso/boot
 
-TESTOPTS =-DTESTING
+CSRCS   := $(wildcard $(SRCDIR)/*.c)
+ASSRCS  := $(wildcard $(ASDIR)/*.s)
+COBJS   := $(patsubst $(SRCDIR)/%.c,  $(OBJDIR)/%.o, $(CSRCS))
+ASOBJS  := $(patsubst $(ASDIR)/%.s,   $(OBJDIR)/%.o, $(ASSRCS))
+OBJS    := $(ASOBJS) $(COBJS)
 
-CFLAGS = -Wall -Wextra -Werror -Wpedantic -Wno-nonnull-compare -Wno-empty-translation-unit
-CFLAGS += -I $(HEADERDIR)
-CDEBUG = -ggdb3 -O0 #-Og -ggdb 
-CFLAGS += $(CDEBUG)
-CPROFILING = -fprofile-abs-path -fprofile-arcs -ftest-coverage -pg -fprofile-generate # --coverage
-#CFLAGS += $(CPROFILING)
-COPTIMIZE = -O2
-#CFLAGS += $(COPTIMIZE)
-CFLAGS += $(TESTOPTS)
-LIBS = 
-
-OBJS = $(OBJFILES)
-
-# -------- recipies -------- #
-
-# ---- build ----
-build : format  $(main) # easier to type
+KERNEL  := $(OUTDIR)/kernel.elf
+ISO     := $(OUTDIR)/kernel.iso
 
 
-$(main) : objs
-	$(CC) $(CFLAGS) $(OBJS) -o $@ $(LIBS)
+# -------- Targets -------- #
 
+.PHONY: all iso run debug clean
 
-new : clean build
+all: $(KERNEL)
 
+$(KERNEL): $(OBJS) cfg/kernel.ld
+	$(CC) $(LDFLAGS) -o $@ $(OBJS)
 
-# ---- compile ----
+$(OBJDIR)/%.o: $(ASDIR)/%.s
+	$(AS) $< -o $@
 
-# all sourcecode
-objs : tags $(OBJS)
-
-
-# cfiles
-$(OBJDIR)/%.o : $(SOURCEDIR)/%.c $(HEADERDIR)/%.h
+$(OBJDIR)/%.o: $(SRCDIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# cfiles without headerfile
-$(OBJDIR)/%.o : $(SOURCEDIR)/%.c
-	$(CC) $(CFLAGS) -c $< -o $@
+iso: $(KERNEL)
+	mkdir -p $(ISODIR)/grub
+	cp $(KERNEL) $(ISODIR)/
+	cp cfg/grub.cfg $(ISODIR)/grub/grub.cfg
+	grub-mkrescue -o $(ISO) $(OUTDIR)/iso 2>/dev/null
 
+run: iso
+	qemu-system-i386 -cdrom $(ISO) -serial stdio -no-reboot
 
-# ---- run ----
-#
-run : $(main)
-	./$(main)
+debug: iso
+	qemu-system-i386 -cdrom $(ISO) -serial stdio -no-reboot -s -S &
+	gdb $(KERNEL) -ex "target remote :1234"
 
-debug : $(main)
-	gdb $(main)
-
-# ---- misc ----
-#
-tags : $(SOURCES) $(HEADERS)
-	ctags -R .
-
-create_copile_commands : makefile
-	bear -- make new
-
-heap : $(main)
-	valgrind --leak-check=full --show-leak-kinds=all ./$(main)
-
-check : $(SOURCES) $(HEADERS)
-	cppcheck --enable=all -I $(HEADERDIR) $(SOURCEDIR) --suppress=missingIncludeSystem
-
-.PHONY : format
-format : $(CONFIGDIR)/.clang-format $(SOURCES) $(HEADERS)
-	clang-format -i -style=file:$(CONFIGDIR)/.clang-format $(SOURCES) $(HEADERS)
-
-profile : $(main) run
-	cp $(main) a.out
-	gprof
-	rm a.out
-
-clean :
-	rm -f $(OBJDIR)/*
-	rm -f out/*
-	rm -f $(main)
-	rm -f a.out
-	rm -f gmon.out
-	rm -f .cache/clangd/index/*
-
+clean:
+	rm -f $(OBJDIR)/*.o
+	rm -f $(OUTDIR)/kernel.elf $(OUTDIR)/kernel.iso
+	rm -rf $(OUTDIR)/iso

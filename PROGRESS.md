@@ -11,7 +11,7 @@
 
 | # | Session | Status | Tag | Notes |
 |---|---------|--------|-----|-------|
-| 00 | Toolchain: build i686-elf-gcc, install QEMU | [ ] | | |
+| 00 | Toolchain: build i686-elf-gcc, install QEMU | [x] | session-00-complete | i686-elf-gcc 14.2.0 + binutils 2.42 built from source to ~/cross/opt; qemu-system-i386 8.2.2; smoke test boots and halts cleanly |
 
 ---
 

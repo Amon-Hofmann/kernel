@@ -1,0 +1,8 @@
+lib/*.o
+out/*
+tags
+compile_commands.json
+*.gcda
+*.gcno
+gmon.out
+a.out

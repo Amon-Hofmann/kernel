@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//home/aj/**)",
+      "Read(//usr/**)",
+      "Bash(qemu-system-i386 --version)",
+      "Bash(grub-mkrescue --version)"
+    ]
+  }
+}

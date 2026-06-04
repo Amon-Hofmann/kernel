@@ -4,7 +4,18 @@
       "Read(//home/aj/**)",
       "Read(//usr/**)",
       "Bash(qemu-system-i386 --version)",
-      "Bash(grub-mkrescue --version)"
+      "Bash(grub-mkrescue --version)",
+      "Bash(apt-cache search *)",
+      "Bash(~/cross/opt/bin/i686-elf-as --version)",
+      "Bash(~/cross/opt/bin/i686-elf-ld --version)",
+      "Bash(apt-cache show *)",
+      "Bash(mformat --version)",
+      "Bash(make clean *)",
+      "Bash(make all *)",
+      "Bash(gdb --version)",
+      "Bash(gdb -batch -ex \"set architecture i386\" -ex \"quit\")",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }

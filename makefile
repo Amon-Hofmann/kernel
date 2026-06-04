@@ -17,9 +17,6 @@ AS      := $(CROSS)/i686-elf-as
 LD      := $(CROSS)/i686-elf-ld
 OBJDUMP := $(CROSS)/i686-elf-objdump
 
-CFLAGS  := -std=gnu99 -ffreestanding -O2 -Wall -Wextra -Iinclude
-LDFLAGS := -T cfg/kernel.ld -ffreestanding -O2 -nostdlib -lgcc
-
 
 # -------- Directories -------- #
 
@@ -38,6 +35,12 @@ OBJS    := $(ASOBJS) $(COBJS)
 
 KERNEL  := $(OUTDIR)/kernel.elf
 ISO     := $(OUTDIR)/kernel.iso
+
+
+# --------- Flags --------- #
+
+CFLAGS  := -std=gnu99 -ffreestanding -O2 -Wall -Wextra -I$(INCDIR)
+LDFLAGS := -T cfg/kernel.ld -ffreestanding -O2 -nostdlib -lgcc
 
 
 # -------- Targets -------- #

@@ -43,9 +43,20 @@ CFLAGS  := -std=gnu99 -ffreestanding -O2 -Wall -Wextra -I$(INCDIR)
 LDFLAGS := -T cfg/kernel.ld -ffreestanding -O2 -nostdlib -lgcc
 
 
+# -------- Tutorial PDFs -------- #
+
+TUTORIALDIR := tutorial
+MDFILES     := $(wildcard $(TUTORIALDIR)/*.md)
+PDFFILES    := $(MDFILES:.md=.pdf)
+
+$(TUTORIALDIR)/%.pdf: $(TUTORIALDIR)/%.md
+	pandoc $< -o $@
+
 # -------- Targets -------- #
 
-.PHONY: all iso run debug clean
+.PHONY: all iso run debug clean pdf
+
+new: clean $(KERNEL)
 
 all: $(KERNEL)
 
@@ -67,9 +78,14 @@ iso: $(KERNEL)
 run: iso
 	qemu-system-i386 -cdrom $(ISO) -serial stdio -no-reboot
 
+create_copile_commands : makefile
+	bear -- make new
+
 debug: iso
 	qemu-system-i386 -cdrom $(ISO) -serial stdio -no-reboot -s -S &
 	gdb $(KERNEL) -ex "target remote :1234"
+
+pdf: $(PDFFILES)
 
 clean:
 	rm -f $(OBJDIR)/*.o

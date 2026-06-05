@@ -36,6 +36,16 @@ is explained. See `tutorial-plan.md` for the full session breakdown.
 - Git tag each completed session: `git tag session-NN-complete`
 - The code at each tag is the working kernel for that session
 
+## Tutorial authoring rules
+
+- Any new session or change to session scope must be reflected in **both**
+  `tutorial-plan.md` (master plan) **and** the corresponding `tutorial/session-NN.md` file.
+- These two sources must stay in sync — `tutorial-plan.md` is the outline,
+  `tutorial/` contains the full student-facing content.
+- Sub-sessions (e.g. `session-01.1`) get their own file in `tutorial/` and a
+  matching entry in `tutorial-plan.md` under the parent session.
+
 ## Current status
 
-Session 0 not yet started. Toolchain (`i686-elf-gcc`, `qemu-system-i386`) not yet installed.
+Session 0 complete. Session 1 build checkpoint done; concept check and mutation
+exercise pending. Session 1.1 (GAS assembly primer) added as a prerequisite interlude.

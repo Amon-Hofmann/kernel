@@ -78,6 +78,30 @@ what `i686-elf-gcc` provides.
 
 ## Phase 1 — First Boot (Sessions 1–4)
 
+### Session 1.1 — GAS Assembly Primer (~1h, interlude)
+
+**What this is:** A reference session — no new kernel code. Covers the GAS
+directives and notation used in `boot.s` that are not obvious without a formal
+assembly background. Read this after the Session 1 build works, before moving
+to Session 2.
+
+**Topics covered:**
+- What an assembler does (mnemonics → machine code + relocation records)
+- Directives vs. instructions
+- `.set` — named constants at assemble time
+- `.section` — switching between ELF sections
+- `.align` / `.balign` — alignment padding and why it matters
+- `.long`, `.word`, `.byte` — emitting raw values into the binary
+- `.skip` — reserving N bytes (BSS idiom)
+- `.global` — exporting a symbol so the linker can see it
+- `.type sym, @function` / `.type sym, @object` — ELF symbol type metadata
+- `.size sym, . - sym` — the location counter `.`, what `. - sym` computes, and
+  why size annotations matter for debuggers and `objdump`
+- Local labels (`1:`, `2:`) and the `1b` / `1f` back/forward reference syntax
+- Reading your binary: `objdump -d`, `objdump -t`, `readelf -S`
+
+---
+
 ### Session 1 — Multiboot & the Boot Handoff (~3h)
 
 **What you build:** A kernel that boots via GRUB/Multiboot and halts cleanly.

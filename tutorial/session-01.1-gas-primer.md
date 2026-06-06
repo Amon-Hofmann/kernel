@@ -75,10 +75,10 @@ Everything that follows — until the next `.section` directive — is placed th
 Common sections:
 | Section   | Contents                        | In binary? | Writable? |
 |-----------|---------------------------------|------------|-----------|
-| `.text`   | Executable code                 | Yes        | No        |
-| `.rodata` | Read-only constants             | Yes        | No        |
-| `.data`   | Initialised read/write data     | Yes        | Yes       |
-| `.bss`    | Zero-initialised data           | No *       | Yes       |
+| `.text`     | Executable code                 | Yes        | No        |
+| `.rodata`   | Read-only constants             | Yes        | No        |
+| `.data`     | Initialised read/write data     | Yes        | Yes       |
+| `.bss`      | Zero-initialised data           | No *       | Yes       |
 
 \* `.bss` takes **no space in the binary**. The linker records how many bytes to
 reserve, and the loader zeroes that region at startup. This is why the stack

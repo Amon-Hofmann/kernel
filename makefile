@@ -26,9 +26,11 @@ INCDIR  := include
 OBJDIR  := lib
 OUTDIR  := out
 ISODIR  := $(OUTDIR)/iso/boot
+CFGDIR  := cfg
 
 CSRCS   := $(wildcard $(SRCDIR)/*.c)
 ASSRCS  := $(wildcard $(ASDIR)/*.s)
+HEADERS := $(wildcard $(INCDIR)/*.h)
 COBJS   := $(patsubst $(SRCDIR)/%.c,  $(OBJDIR)/%.o, $(CSRCS))
 ASOBJS  := $(patsubst $(ASDIR)/%.s,   $(OBJDIR)/%.o, $(ASSRCS))
 OBJS    := $(ASOBJS) $(COBJS)
@@ -39,8 +41,8 @@ ISO     := $(OUTDIR)/kernel.iso
 
 # --------- Flags --------- #
 
-CFLAGS  := -std=gnu99 -ffreestanding -O2 -Wall -Wextra -I$(INCDIR)
-LDFLAGS := -T cfg/kernel.ld -ffreestanding -O2 -nostdlib -lgcc
+CFLAGS  := -std=gnu99 -ffreestanding -Og -ggdb3 -Wall -Wextra -I$(INCDIR)
+LDFLAGS := -T cfg/kernel.ld -ffreestanding -Og -nostdlib -lgcc
 
 
 # -------- Tutorial PDFs -------- #
@@ -53,14 +55,15 @@ $(TUTORIALDIR)/%.pdf: $(TUTORIALDIR)/%.md
 	pandoc $< -o $@
 
 # -------- Targets -------- #
+# -------- main Targets -------- #
 
-.PHONY: all iso run debug clean pdf
-
-new: clean $(KERNEL)
+.PHONY: all iso run debug clean pdf format
 
 all: $(KERNEL)
 
-$(KERNEL): $(OBJS) cfg/kernel.ld
+new: clean $(KERNEL)
+
+$(KERNEL): $(OBJS) cfg/kernel.ld format
 	$(CC) $(LDFLAGS) -o $@ $(OBJS)
 
 $(OBJDIR)/%.o: $(ASDIR)/%.s
@@ -78,12 +81,20 @@ iso: $(KERNEL)
 run: iso
 	qemu-system-i386 -cdrom $(ISO) -serial stdio -no-reboot
 
-create_copile_commands : makefile
-	bear -- make new
-
 debug: iso
 	qemu-system-i386 -cdrom $(ISO) -serial stdio -no-reboot -s -S &
 	gdb $(KERNEL) -ex "target remote :1234"
+
+
+# -------- helper Targets -------- #
+
+format : $(CFGDIR)/.clang-format $(CSRCS) $(HEADERS)
+	clang-format -i -style=file:$(CFGDIR)/.clang-format $(CSRCS) $(HEADERS)
+
+create_copile_commands : makefile
+	bear -- make new
+
+
 
 pdf: $(PDFFILES)
 

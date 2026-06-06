@@ -15,6 +15,7 @@
 .align 16
 stack_bottom:
 .skip 16384         /* 16 KiB */
+#.skip 8         
 stack_top:
 
 .section .text
@@ -22,6 +23,7 @@ stack_top:
 .type _start, @function
 _start:
     mov $stack_top, %esp    /* point stack register at top (stack grows down) */
+    call kernel_main        /* call main from kernel*/
     cli                     /* disable interrupts */
     hlt                     /* halt the CPU */
 1:  jmp 1b                  /* if somehow resumed, loop forever */

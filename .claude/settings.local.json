@@ -15,7 +15,8 @@
       "Bash(gdb --version)",
       "Bash(gdb -batch -ex \"set architecture i386\" -ex \"quit\")",
       "Bash(git add *)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(pandoc --version)"
     ]
   }
 }

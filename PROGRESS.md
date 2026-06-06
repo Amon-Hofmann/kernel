@@ -21,7 +21,7 @@
 |---|---------|--------|-----|-------|
 | 1.1 | GAS assembly primer (interlude) | [x] | session-01.1-complete | Reference session; objdump/readelf inspection; no build artifact |
 | 01 | Multiboot & the boot handoff | [x] | session-01-complete | boot.s + kernel_main; stack overflow = memory corruption (no hw boundary); Multiboot checksum verified as magic+flags+checksum==0 mod 2^32; -ffreestanding implies -fno-builtin |
-| 02 | VGA text mode | [ ] | | |
+| 02 | VGA text mode | [x] | session-02-complete | volatile uint16_t* VGA buffer; attribute byte = bg<<4|fg; scroll via memmove+direct uint16_t clear; memcpy/memmove/memset in string.c; -fno-tree-loop-distribute-patterns insight |
 | 03 | GDT: segments & privilege rings | [ ] | | |
 | 04 | IDT & CPU exceptions | [ ] | | |
 

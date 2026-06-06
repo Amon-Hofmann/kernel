@@ -64,9 +64,9 @@ first 8 KiB. The header is exactly 12 bytes:
 
 | Offset | Field    | Value                        | Why                                      |
 |--------|----------|------------------------------|------------------------------------------|
-| 0      | magic    | `0x1BADB002`                 | Fixed identifier the bootloader scans for|
-| 4      | flags    | `0` (for now)                | Feature flags (modules, memory map, etc.)|
-| 8      | checksum | `-(magic + flags)` mod 2^32  | Detects corruption; must sum to zero     |
+| 0      | magic    | `0x1BADB002`                   | Fixed identifier the bootloader scans for|
+| 4      | flags    | `0` (for now)                  | Feature flags (modules, memory map, etc.)|
+| 8      | checksum | `-(magic + flags)` mod 2^32    | Detects corruption; must sum to zero     |
 
 The checksum constraint: `magic + flags + checksum == 0 (mod 2^32)`. If the sum
 is wrong, GRUB rejects the kernel with "not a multiboot kernel."

@@ -192,6 +192,30 @@ Try to use it and observe the fault. Explain which exception fires and why.
 
 ---
 
+### Session 3.1 — Serial Output: UART & Port I/O (~1.5h)
+
+**What you build:** A minimal serial driver for COM1. `serial_init` configures the
+UART, `serial_putchar` writes one character, `serial_writestring` writes a string.
+Output appears in the QEMU terminal via `-serial stdio`. Use it to replace the
+VGA stress loop with a serial hello.
+
+**Topics covered:**
+- Port I/O vs MMIO: `in`/`out` instructions vs memory-mapped registers
+- The 16550 UART: COM1 base address (0x3F8), register map
+- Initialisation sequence: baud rate divisor (DLAB), line control, FIFO, modem control
+- Polling the THRE bit before each write
+- Why serial is faster than VGA under KVM (no MMIO VM exits)
+
+**Concept check:**
+1. What is the difference between port I/O and MMIO? Why does VGA use one and
+   UART use the other?
+2. What does polling THRE before each write prevent?
+
+**No mutation exercise** — serial output is a utility session. Verify with `make run`
+that text appears in the terminal.
+
+---
+
 ### Session 4 — IDT & CPU Exceptions (~4h)
 
 **What you build:** An IDT with handlers for all 32 CPU exception vectors.

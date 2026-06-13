@@ -23,7 +23,7 @@
 | 01 | Multiboot & the boot handoff | [x] | session-01-complete | boot.s + kernel_main; stack overflow = memory corruption (no hw boundary); Multiboot checksum verified as magic+flags+checksum==0 mod 2^32; -ffreestanding implies -fno-builtin |
 | 02 | VGA text mode | [x] | session-02-complete | volatile uint16_t* VGA buffer; attribute byte = bg<<4|fg; scroll via memmove+direct uint16_t clear; memcpy/memmove/memset in string.c; -fno-tree-loop-distribute-patterns insight |
 | 03 | GDT: segments & privilege rings | [x] | session-03-complete |
-| 3.1 | Serial output: UART & port I/O | [ ] | | flat GDT with 5+null descriptors; gdt_flush in asm with far jump + segment reg reload; gdt_set_gate flags nibble vs granularity byte; base_high precedence bug caught; QEMU/TCG does not enforce segment limits in ring-0 — KVM required to observe #GP triple fault |
+| 3.1 | Serial output: UART & port I/O | [x] | session-03.1-complete | 16550 UART on COM1 (0x3F8); polled THRE; port I/O via inline asm outb/inb; -nostdinc added to CFLAGS; KVM enforces segment limits, TCG does not |
 | 04 | IDT & CPU exceptions | [ ] | | |
 
 ---

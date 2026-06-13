@@ -67,6 +67,7 @@ The UART's internal clock runs at 115200 Hz. The divisor sets the baud rate:
 
 ```
 divisor = 115200 / baud_rate
+The implementation went with the full 115200 baud
 ```
 
 For 38400 baud: divisor = 3 (low byte = 3, high byte = 0).

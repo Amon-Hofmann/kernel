@@ -41,7 +41,9 @@ ISO     := $(OUTDIR)/kernel.iso
 
 # --------- Flags --------- #
 
-CFLAGS  := -std=gnu99 -ffreestanding -Og -ggdb3 -Wall -Wextra -Werror -I$(INCDIR)
+GCC_INCLUDES := $(shell $(CC) -print-file-name=include)
+CFLAGS  := -std=gnu99 -ffreestanding -Og -ggdb3 -Wall -Wextra -Werror \
+           -nostdinc -isystem $(GCC_INCLUDES) -I$(INCDIR)
 LDFLAGS := -T cfg/kernel.ld -ffreestanding -Og -nostdlib -lgcc
 
 

@@ -7,3 +7,5 @@ compile_commands.json
 *.gcno
 gmon.out
 a.out
+.cache/*
+.gdb_history

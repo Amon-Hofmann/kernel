@@ -153,6 +153,23 @@ Not strictly required now, but essential once paging is enabled (Session 10).
 | `-lgcc` | Link GCC's internal runtime library | Provides helper functions the compiler emits for things like 64-bit arithmetic on 32-bit hardware (`__udivdi3`, etc.). Unlike libc, this is genuinely freestanding. |
 | `-O2` | Optimise | Not strictly required, but `-ffreestanding` without optimisation can produce code that depends on stack frames in ways that break early boot. |
 
+## CRT objects — what they are and why we skip them
+
+A hosted C program links several startup object files automatically: `crt0.o`
+calls `main()` after setup; `crti.o` and `crtn.o` bookend the `.init`/`.fini`
+sections (used by the C library for global setup and `atexit` handlers);
+`crtbegin.o` and `crtend.o` (from GCC) handle C++ global constructors and
+destructors.
+
+`-nostdlib` skips all of them. We don't need any of them because:
+- There is no C library and no `main()` — our entry point is `_start` in assembly
+- We call `kernel_main` directly; nothing runs before or after it automatically
+- We write C, not C++, so there are no global constructors to register
+
+If you ever add C++ to the kernel with file-scope objects that have constructors,
+you would need `crtbegin.o`/`crtend.o` and a startup loop that walks the
+`.init_array` ELF section. That is an advanced topic for later phases.
+
 ---
 
 ## What you need to implement

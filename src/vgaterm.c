@@ -23,9 +23,7 @@ static uint8_t s_vga_term_cursor_row = 0;
 void terminal_initialize(void) {
     s_vga_term_cursor_row = 0;
     s_vga_term_cursor_column = 0;
-    // terminal_set_attribute(TERMINAL_FG_LIGHT_GREY, TERMINAL_BG_BLACK);
-    terminal_set_attribute(TERMINAL_FG_LIGHT_GREY,
-                           TERMINAL_BG_RED);  // muattion exercise part A
+    terminal_set_attribute(TERMINAL_FG_LIGHT_GREY, TERMINAL_BG_BLACK);
 
     for (uint16_t cursor = 0; cursor < TERMINAL_N_ROWS * TERMINAL_N_COLS;
          cursor++) {
@@ -51,7 +49,6 @@ static inline void terminal_inc_cursor(void) {
                 vga[TERMINAL_N_COLS * (TERMINAL_N_ROWS - 1) + index] =
                     s_vga_term_attribute << 8 | 0x20;
             }
-            // s_vga_term_cursor_row = 0; Before Mutation exercise part B
         } else {
             s_vga_term_cursor_row++;
         }

@@ -41,7 +41,7 @@ ISO     := $(OUTDIR)/kernel.iso
 
 # --------- Flags --------- #
 
-CFLAGS  := -std=gnu99 -ffreestanding -Og -ggdb3 -Wall -Wextra -I$(INCDIR)
+CFLAGS  := -std=gnu99 -ffreestanding -Og -ggdb3 -Wall -Wextra -Werror -I$(INCDIR)
 LDFLAGS := -T cfg/kernel.ld -ffreestanding -Og -nostdlib -lgcc
 
 
@@ -79,10 +79,10 @@ iso: $(KERNEL)
 	grub-mkrescue -o $(ISO) $(OUTDIR)/iso 2>/dev/null
 
 run: iso
-	qemu-system-i386 -cdrom $(ISO) -serial stdio -no-reboot
+	qemu-system-i386 -cdrom $(ISO) -serial stdio -no-reboot -enable-kvm -d int,cpu_reset -D /tmp/qemu.log
 
 debug: iso
-	qemu-system-i386 -cdrom $(ISO) -serial stdio -no-reboot -s -S &
+	qemu-system-i386 -cdrom $(ISO) -serial stdio -no-reboot -enable-kvm -s -S -d int,cpu_reset -D /tmp/qemu.log &
 	gdb $(KERNEL) -ex "target remote :1234"
 
 

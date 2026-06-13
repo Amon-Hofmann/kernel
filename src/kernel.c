@@ -4,11 +4,14 @@
  * Author - Amon Hofmann
  */
 
+#include <gdt.h>
 #include <kernel.h>
 #include <stdint.h>
 #include <vgaterm.h>
 
 void kernel_main(void) {
+    gdt_install();
+
     terminal_initialize();
     terminal_writestring("Hello, Kernel!");
     terminal_writestring("\n");

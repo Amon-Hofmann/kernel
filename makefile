@@ -65,7 +65,7 @@ all: $(KERNEL)
 
 new: clean $(KERNEL)
 
-$(KERNEL): $(OBJS) cfg/kernel.ld format
+$(KERNEL): format $(OBJS) cfg/kernel.ld
 	$(CC) $(LDFLAGS) -o $@ $(OBJS)
 
 $(OBJDIR)/%.o: $(ASDIR)/%.s
@@ -81,9 +81,11 @@ iso: $(KERNEL)
 	grub-mkrescue -o $(ISO) $(OUTDIR)/iso 2>/dev/null
 
 run: iso
+	#qemu-system-i386 -cdrom $(ISO) -serial stdio -no-reboot
 	qemu-system-i386 -cdrom $(ISO) -serial stdio -no-reboot -enable-kvm -d int,cpu_reset -D /tmp/qemu.log
 
 debug: iso
+	#qemu-system-i386 -cdrom $(ISO) -serial stdio -no-reboot  -s -S  &
 	qemu-system-i386 -cdrom $(ISO) -serial stdio -no-reboot -enable-kvm -s -S -d int,cpu_reset -D /tmp/qemu.log &
 	gdb $(KERNEL) -ex "target remote :1234"
 

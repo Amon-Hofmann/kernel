@@ -12,13 +12,9 @@ gdt_flush:
 
 1:  mov $KERNEL_DATA_SELECTOR, %eax 
     mov %eax, %ds
-    mov $KERNEL_DATA_SELECTOR, %eax 
     mov %eax, %es
-    mov $KERNEL_DATA_SELECTOR, %eax 
     mov %eax, %fs
-    mov $KERNEL_DATA_SELECTOR, %eax 
     mov %eax, %gs
-    mov $KERNEL_DATA_SELECTOR, %eax 
     mov %eax, %ss
     ret
 .size gdt_flush, . - gdt_flush

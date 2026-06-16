@@ -5,6 +5,7 @@
  */
 
 #include <gdt.h>
+#include <idt.h>
 #include <kernel.h>
 #include <serial.h>
 #include <stdint.h>
@@ -12,6 +13,7 @@
 
 void kernel_main(void) {
     gdt_install();
+    idt_install();
     serial_init();
 
     serial_writestring("Hello from serial\n");
@@ -22,4 +24,6 @@ void kernel_main(void) {
     for (uint16_t idx = 0; idx < 20; idx++) {
         terminal_writestring("Tach auch, ich bins. Der ERWIN!");
     }
+
+    __asm__ volatile("div %0" : : "r"((uint32_t)0));
 }

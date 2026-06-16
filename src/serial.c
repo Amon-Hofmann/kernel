@@ -5,6 +5,9 @@
  */
 
 #include <serial.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 #define SERIAL_COM1_BASE ((uint16_t)0x3F8)
@@ -79,4 +82,59 @@ void serial_writestring(const char *s) {
         serial_putchar(*s);
         s++;
     }
+}
+
+static void serial_write_32_hex(uint32_t n, bool upper) {
+    serial_writestring("0x");
+    char const *where;
+    if (upper) {
+        where = "0123456789ABCDEF";
+    } else {
+        where = "0123456789abcdef";
+    }
+    for (size_t i = 0; i < 8; i++) {
+        serial_putchar(where[(n & 0xF0000000) >> 7 * 4]);
+        n = n << 4;
+    }
+}
+
+void serial_printf(const char *format, ...) {
+    bool hit = false;
+    va_list args;
+    va_start(args, format);
+
+    while (*format) {
+        if (!hit && *format == '%') {
+            // first '%' found
+            hit = true;
+
+        } else if (hit && *format == '%') {
+            // second '%' in a row, ignore
+            hit = false;
+            serial_putchar('%');
+        }
+
+        else if (hit) {
+            // format specifier
+            switch (*format) {
+                case 'x':
+                    serial_write_32_hex(va_arg(args, uint32_t),
+                                        false);  // interpret as hex
+                    break;
+                case 'X':
+                    serial_write_32_hex(va_arg(args, uint32_t),
+                                        true);  // interpret as hex
+                    break;
+                case 's':
+                    serial_writestring(
+                        va_arg(args, const char *));  // interpret as string
+                    break;
+            }
+            hit = false;
+        } else {
+            serial_putchar(*format);
+        }
+        format++;
+    }
+    va_end(args);
 }

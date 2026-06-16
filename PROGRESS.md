@@ -24,7 +24,7 @@
 | 02 | VGA text mode | [x] | session-02-complete | volatile uint16_t* VGA buffer; attribute byte = bg<<4|fg; scroll via memmove+direct uint16_t clear; memcpy/memmove/memset in string.c; -fno-tree-loop-distribute-patterns insight |
 | 03 | GDT: segments & privilege rings | [x] | session-03-complete |
 | 3.1 | Serial output: UART & port I/O | [x] | session-03.1-complete | 16550 UART on COM1 (0x3F8); polled THRE; port I/O via inline asm outb/inb; -nostdinc added to CFLAGS; KVM enforces segment limits, TCG does not |
-| 04 | IDT & CPU exceptions | [ ] | | |
+| 04 | IDT & CPU exceptions | [x] | session-04-complete | 32 ISR stubs via GAS macro (ISR_NOERR/ISR_ERR), shared isr_common; idt_ptr_t needed __attribute__((packed)) or lidt read garbage base; struct interrupt_frame must mirror isr_common's actual pushes exactly (spurious ds field shifted every later field by 4 bytes); type_attr needs present bit (0x8E not 0xE); mutation exercise showed eflags IF bit unchanged between interrupt/trap gate since kernel never calls sti |
 
 ---
 

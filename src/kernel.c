@@ -8,7 +8,6 @@
 #include <idt.h>
 #include <kernel.h>
 #include <serial.h>
-#include <stdint.h>
 #include <vgaterm.h>
 
 void kernel_main(void) {
@@ -25,5 +24,4 @@ void kernel_main(void) {
         terminal_writestring("Tach auch, ich bins. Der ERWIN!");
     }
 
-    __asm__ volatile("div %0" : : "r"((uint32_t)0));
 }

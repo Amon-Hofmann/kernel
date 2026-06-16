@@ -39,7 +39,7 @@ static const char *itr_names[32] = {"Divide Error",
                                     "Reserved",
                                     "Reserved"};
 
-void exception_handler(struct interrupt_frame *frame __attribute__((unused))) {
+void exception_handler(struct interrupt_frame *frame) {
     serial_printf("EXCEPTION: %s (#%x)\n", itr_names[frame->vector],
                   frame->vector);
     serial_printf("EIP: %X CS: %X EFLAGS: %X ERR: %X\n", frame->eip, frame->cs,

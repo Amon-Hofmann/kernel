@@ -12,4 +12,6 @@
 
 ## Mutation exercise
 
-1. 
+- A: eip points to 0x001005B7, somewhere in the kernel-code address space. The error-code is 0x00000000.
+
+- B: EFLAGS does not differ as we have not called sti so far anyways.

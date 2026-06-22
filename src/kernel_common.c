@@ -1,8 +1,7 @@
-/* io.c
+/* kernel_common.c
  * Whatever this program does
  *
  * Author - Amon Hofmann
  */
 
-#include <io.h>
-#include <stdint.h>
+#include <kernel_common.h>

@@ -19,6 +19,7 @@ is explained. See `tutorial-plan.md` for the full session breakdown.
 
 - `/review` — assesses completed work; pass/fail only, no hints
 - `/hint` — Socratic hints when stuck; one at a time, never gives the answer
+- `/rate` — rates each TU 1–10 for code quality with concrete suggestions
 
 ## Conventions
 

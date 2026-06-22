@@ -83,11 +83,10 @@ Each PIC has an 8-bit **Interrupt Mask Register (IMR)**, written via its data
 port at any time after initialization (this is "OCW1", though it is just a
 normal byte write). A `1` bit masks (disables) that line; `0` unmasks it.
 
-```
-bit:    7   6   5   4   3   2   1   0
-master: IRQ7 IRQ6 IRQ5 IRQ4 IRQ3 IRQ2 IRQ1 IRQ0
-slave:  IRQ15 IRQ14 IRQ13 IRQ12 IRQ11 IRQ10 IRQ9 IRQ8
-```
+| PIC    | Bit 7 | Bit 6 | Bit 5 | Bit 4 | Bit 3 | Bit 2 | Bit 1 | Bit 0 |
+|--------|-------|-------|-------|-------|-------|-------|-------|-------|
+| Master | IRQ7  | IRQ6  | IRQ5  | IRQ4  | IRQ3  | IRQ2  | IRQ1  | IRQ0  |
+| Slave  | IRQ15 | IRQ14 | IRQ13 | IRQ12 | IRQ11 | IRQ10 | IRQ9  | IRQ8  |
 
 To mask or unmask a single line you must read the current IMR, flip one bit,
 and write it back — writing a fresh byte would clobber every other line's

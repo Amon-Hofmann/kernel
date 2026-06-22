@@ -60,7 +60,25 @@ void isr29(void);
 void isr30(void);
 void isr31(void);
 
+void irq0(void);
+void irq1(void);
+void irq2(void);
+void irq3(void);
+void irq4(void);
+void irq5(void);
+void irq6(void);
+void irq7(void);
+void irq8(void);
+void irq9(void);
+void irq10(void);
+void irq11(void);
+void irq12(void);
+void irq13(void);
+void irq14(void);
+void irq15(void);
+
 void idt_install(void) {
+    // interrupts
     idt_set_gate(0, (uint32_t)isr0, KERNEL_CODE_SELECTOR, IDT_INTERRUPT_GATE);
     idt_set_gate(1, (uint32_t)isr1, KERNEL_CODE_SELECTOR, IDT_INTERRUPT_GATE);
     idt_set_gate(2, (uint32_t)isr2, KERNEL_CODE_SELECTOR, IDT_INTERRUPT_GATE);
@@ -93,5 +111,24 @@ void idt_install(void) {
     idt_set_gate(29, (uint32_t)isr29, KERNEL_CODE_SELECTOR, IDT_INTERRUPT_GATE);
     idt_set_gate(30, (uint32_t)isr30, KERNEL_CODE_SELECTOR, IDT_INTERRUPT_GATE);
     idt_set_gate(31, (uint32_t)isr31, KERNEL_CODE_SELECTOR, IDT_INTERRUPT_GATE);
+
+    // irqs
+    idt_set_gate(32, (uint32_t)irq0, KERNEL_CODE_SELECTOR, IDT_INTERRUPT_GATE);
+    idt_set_gate(33, (uint32_t)irq1, KERNEL_CODE_SELECTOR, IDT_INTERRUPT_GATE);
+    idt_set_gate(34, (uint32_t)irq2, KERNEL_CODE_SELECTOR, IDT_INTERRUPT_GATE);
+    idt_set_gate(35, (uint32_t)irq3, KERNEL_CODE_SELECTOR, IDT_INTERRUPT_GATE);
+    idt_set_gate(36, (uint32_t)irq4, KERNEL_CODE_SELECTOR, IDT_INTERRUPT_GATE);
+    idt_set_gate(37, (uint32_t)irq5, KERNEL_CODE_SELECTOR, IDT_INTERRUPT_GATE);
+    idt_set_gate(38, (uint32_t)irq6, KERNEL_CODE_SELECTOR, IDT_INTERRUPT_GATE);
+    idt_set_gate(39, (uint32_t)irq7, KERNEL_CODE_SELECTOR, IDT_INTERRUPT_GATE);
+    idt_set_gate(40, (uint32_t)irq8, KERNEL_CODE_SELECTOR, IDT_INTERRUPT_GATE);
+    idt_set_gate(41, (uint32_t)irq9, KERNEL_CODE_SELECTOR, IDT_INTERRUPT_GATE);
+    idt_set_gate(42, (uint32_t)irq10, KERNEL_CODE_SELECTOR, IDT_INTERRUPT_GATE);
+    idt_set_gate(43, (uint32_t)irq11, KERNEL_CODE_SELECTOR, IDT_INTERRUPT_GATE);
+    idt_set_gate(44, (uint32_t)irq12, KERNEL_CODE_SELECTOR, IDT_INTERRUPT_GATE);
+    idt_set_gate(45, (uint32_t)irq13, KERNEL_CODE_SELECTOR, IDT_INTERRUPT_GATE);
+    idt_set_gate(46, (uint32_t)irq14, KERNEL_CODE_SELECTOR, IDT_INTERRUPT_GATE);
+    idt_set_gate(47, (uint32_t)irq15, KERNEL_CODE_SELECTOR, IDT_INTERRUPT_GATE);
+
     idt_flush(&idt_ptr);
 }

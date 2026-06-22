@@ -18,4 +18,11 @@ struct interrupt_frame {
 void exception_handler(struct interrupt_frame *frame)
     __attribute__((__nonnull__));
 
+void irq_handler(struct interrupt_frame *frame)
+    // interrupt_frame->error_code is here the irq line (0-15)
+    __attribute__((__nonnull__));
+
+void sti(void);
+void cli(void);
+
 #endif  // ISR_H

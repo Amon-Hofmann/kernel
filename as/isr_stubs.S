@@ -1,10 +1,11 @@
+#include <selectors.h>
 
 .macro ISR_NOERR n
 .global isr\n
 .type isr\n, @function
 isr\n:
-    push $0        # dummy error code
-    push $\n       # vector number
+    push $0        /* dummy error code */
+    push $\n       /* vector number */
     jmp isr_common
 .size isr\n, . - isr\n
 .endm
@@ -13,12 +14,11 @@ isr\n:
 .global isr\n
 .type isr\n, @function
 isr\n:
-    push $\n       # CPU already pushed error code
+    push $\n       /* CPU already pushed error code */
     jmp isr_common
 .size isr\n, . - isr\n
 .endm
 
-.set KERNEL_DATA_SELECTOR, 0x0010
 .section .text
 
 ISR_NOERR 0
@@ -75,11 +75,11 @@ isr_common:
 
 .macro IRQ_STUB vector, irq
 .global irq\irq
-.type isr\irq, @function
+.type irq\irq, @function
 
 irq\irq:
-    push $\irq      # which IRQ line (0-15), not the raw vector
-    push $\vector   # the IDT vector (32-47)
+    push $\irq      /* which IRQ line (0-15), not the raw vector */
+    push $\vector   /* the IDT vector (32-47) */
     jmp irq_common
 .size irq\irq, . - irq\irq
 .endm

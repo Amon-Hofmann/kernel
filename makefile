@@ -28,12 +28,14 @@ OUTDIR  := out
 ISODIR  := $(OUTDIR)/iso/boot
 CFGDIR  := cfg
 
-CSRCS   := $(wildcard $(SRCDIR)/*.c)
-ASSRCS  := $(wildcard $(ASDIR)/*.s)
-HEADERS := $(wildcard $(INCDIR)/*.h)
-COBJS   := $(patsubst $(SRCDIR)/%.c,  $(OBJDIR)/%.o, $(CSRCS))
-ASOBJS  := $(patsubst $(ASDIR)/%.s,   $(OBJDIR)/%.o, $(ASSRCS))
-OBJS    := $(ASOBJS) $(COBJS)
+CSRCS    := $(wildcard $(SRCDIR)/*.c)
+ASSRCS_s := $(wildcard $(ASDIR)/*.s)
+ASSRCS_S := $(wildcard $(ASDIR)/*.S)
+HEADERS  := $(wildcard $(INCDIR)/*.h)
+COBJS    := $(patsubst $(SRCDIR)/%.c,  $(OBJDIR)/%.o, $(CSRCS))
+ASOBJS   := $(patsubst $(ASDIR)/%.s,   $(OBJDIR)/%.o, $(ASSRCS_s)) \
+             $(patsubst $(ASDIR)/%.S,   $(OBJDIR)/%.o, $(ASSRCS_S))
+OBJS     := $(ASOBJS) $(COBJS)
 
 KERNEL  := $(OUTDIR)/kernel.elf
 ISO     := $(OUTDIR)/kernel.iso
@@ -70,6 +72,9 @@ $(KERNEL): format $(OBJS) cfg/kernel.ld
 
 $(OBJDIR)/%.o: $(ASDIR)/%.s
 	$(AS) $< -o $@
+
+$(OBJDIR)/%.o: $(ASDIR)/%.S
+	$(CC) $(CFLAGS) -x assembler-with-cpp -c $< -o $@
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@

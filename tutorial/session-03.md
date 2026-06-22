@@ -218,7 +218,7 @@ simply loading them with `mov`.
 **`src/gdt.c`** — implement:
 - A static array of five `struct gdt_entry` — the GDT itself
 - A static `struct gdt_ptr` pointing at the array, with `limit = sizeof(gdt) - 1`
-- A helper `gdt_set_gate(int index, uint32_t base, uint32_t limit, uint8_t access, uint8_t flags)` that fills in one entry. 
+- A helper `gdt_set_gate(size_t index, uint32_t base, uint32_t limit, uint8_t access, uint8_t flags)` that fills in one entry. 
   `flags` is the 4-bit flag nibble (G, D/B, L, AVL) only — the function extracts `limit[19:16]` from `limit` itself and combines them: `granularity_byte = (flags << 4) | ((limit >> 16) & 0x0F)`
 - `gdt_install`: calls `gdt_set_gate` five times (null, kernel code, kernel data,
   user code, user data), then calls `gdt_flush(&gdt_ptr)`

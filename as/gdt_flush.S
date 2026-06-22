@@ -1,5 +1,4 @@
-.set KERNEL_DATA_SELECTOR, 0x0010
-.set KERNEL_CODE_SELECTOR, 0x0008
+#include <selectors.h>
 
 .section .text
 .global gdt_flush

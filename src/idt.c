@@ -5,11 +5,11 @@
  */
 
 #include <idt.h>
+#include <selectors.h>
 #include <stddef.h>
 
-#define KERNEL_CODE_SELECTOR (0x0008)
-#define IDT_INTERRUPT_GATE   (0x8E)
-#define IDT_TRAP_GATE        (0x8F)
+#define IDT_INTERRUPT_GATE (0x8E)
+#define IDT_TRAP_GATE      (0x8F)
 
 static idt_entry_t idt_entries[IDT_ENTRY_LEN];
 

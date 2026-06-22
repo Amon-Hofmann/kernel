@@ -11,5 +11,6 @@
 #define __INLINE   __attribute__((always_inline)) inline
 #define __NORETURN __attribute__((noreturn))
 #define __UNUSED   __attribute__((unused))
+#define __PACKED   __attribute__((packed))
 
 #endif  // KERNEL_COMMON_H

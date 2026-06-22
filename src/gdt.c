@@ -5,6 +5,7 @@
  */
 
 #include <gdt.h>
+#include <stddef.h>
 
 #define N_GDT_ENTRIES (5)
 
@@ -22,7 +23,7 @@ static gdt_entry_t gdt[N_GDT_ENTRIES];
 
 static gdt_ptr_t gdt_ptr = {.limit = sizeof(gdt) - 1, .base = (uint32_t)gdt};
 
-static void gdt_set_gate(int index, uint32_t base, uint32_t limit,
+static void gdt_set_gate(size_t index, uint32_t base, uint32_t limit,
                          uint8_t access, uint8_t flags) {
     gdt[index].limit_low = (uint16_t)(limit & 0x0000FFFF);
     gdt[index].base_low = (uint16_t)(base & 0x0000FFFF);
@@ -34,6 +35,8 @@ static void gdt_set_gate(int index, uint32_t base, uint32_t limit,
 }
 
 void gdt_install(void) {
+    _Static_assert(N_GDT_ENTRIES == 5,
+                   "Update gdt_install if you change 'N_GDT_ENTRIES'");
     gdt_set_gate(0, 0, 0, 0, 0);  // null
 
     gdt_set_gate(1, GDT_FLAT_MEMORY_BASE, GDT_FLAT_MEMORY_LIMIT,

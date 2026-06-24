@@ -10,7 +10,7 @@ structure, naming, idiom, and maintainability.
 Read all source files, headers, and assembly files in the project:
 - `src/*.c`
 - `include/*.h`
-- `as/*.s`
+- `as/*.S` (and `as/*.s` if any remain)
 
 Do not rely on memory from earlier in the conversation — read the current state
 of the files.
@@ -69,13 +69,17 @@ requires static, format has cross-compiler type-alias tension with uint32_t).
 
 Do not mechanically apply every attribute. Only flag genuine improvements.
 
-## Step 3 — Deliver the rating
+## Step 3 — Write and deliver the rating
 
-Present a markdown table: TU | Score | One-line verdict.
+Write the full rating to `rating.md` in the project root. Overwrite the file if
+it already exists. The file must contain:
+- A top-level heading `# Kernel Codebase Quality Rating` with a `> Generated <date>` line
+- The summary table: TU | Score | One-line verdict
+- A detailed section for each TU scoring below 8 with concrete bullet-point
+  suggestions — what specifically to change and why
 
-Then for each TU scoring below 8, give a short bullet list of concrete
-suggestions — what specifically to change and why. Be direct, not diplomatic.
-Name the exact line, function, or pattern that should change.
+Then confirm in the conversation that `rating.md` has been written and show the
+summary table inline so the user sees the scores without opening the file.
 
 Do not praise things that are merely correct — correctness is the baseline.
 Reserve positive remarks for things that are genuinely well done or show good

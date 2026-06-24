@@ -6,7 +6,7 @@
 
 #ifndef ISR_H
 #define ISR_H
-#include <serial.h>
+#include <kernel_common.h>
 #include <stdint.h>
 
 struct interrupt_frame {
@@ -15,14 +15,9 @@ struct interrupt_frame {
     uint32_t eip, cs, eflags;
 };
 
-void exception_handler(struct interrupt_frame *frame)
-    __attribute__((__nonnull__));
+void exception_handler(struct interrupt_frame *frame) _NONNULL _COLD _NORETURN;
 
-void irq_handler(struct interrupt_frame *frame)
-    // interrupt_frame->error_code is here the irq line (0-15)
-    __attribute__((__nonnull__));
-
-void sti(void);
-void cli(void);
+void irq_handler(struct interrupt_frame *frame) _HOT _NONNULL;
+// interrupt_frame->error_code is here the irq line (0-15)
 
 #endif  // ISR_H

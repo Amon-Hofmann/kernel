@@ -17,7 +17,7 @@
 #define GDT_FLAT_MEMORY_ACCESS_USER_DATA   (0xF2)
 #define GDT_FLAT_MEMORY_FLAGS              (0x0C)
 
-void gdt_flush(gdt_ptr_t *gdt);
+void gdt_flush(gdt_ptr_t *_gdt);
 
 static gdt_entry_t gdt[N_GDT_ENTRIES];
 

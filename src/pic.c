@@ -7,20 +7,10 @@
 #include <io.h>
 #include <pic.h>
 #include <stdbool.h>
-#include <stddef.h>
 
-#define PIC_MASTER_COMMAND_PORT (0x20)
-#define PIC_MASTER_DATA_PORT    (0x21)
-
-#define PIC_SLAVE_COMMAND_PORT (0xA0)
-#define PIC_SLAVE_DATA_PORT    (0xA1)
-
-#define PIC_N_IRQ_LINES    (0x10)
-#define PIC_N_MASTER_LINES (PIC_N_IRQ_LINES / 2)
-
-static inline void pic_rmap_irq(bool master) {
+_INLINE void pic_init_chip(bool master) {
     // master / slave -> 0x04=master, 0x20=slave
-    uint16_t cmd_port, dat_port = 0;
+    uint16_t cmd_port = 0, dat_port = 0;
     uint8_t line = 0;
     uint8_t vector = 0;
     if (master) {
@@ -42,8 +32,8 @@ static inline void pic_rmap_irq(bool master) {
 }
 
 void pic_remap(void) {
-    pic_rmap_irq(true);
-    pic_rmap_irq(false);
+    pic_init_chip(true);
+    pic_init_chip(false);
 }
 
 void pic_irq_mask_all(void) {
@@ -51,7 +41,7 @@ void pic_irq_mask_all(void) {
     port_io_write_byte(0xFF, PIC_SLAVE_DATA_PORT);
 }
 
-inline void pic_set_mask(uint8_t irq) {
+void pic_set_mask(uint8_t irq) {
     uint16_t port = 0;
     if (irq < PIC_N_MASTER_LINES) {
         port = PIC_MASTER_DATA_PORT;
@@ -63,7 +53,7 @@ inline void pic_set_mask(uint8_t irq) {
     port_io_write_byte(mask, port);
 }
 
-inline void pic_clear_mask(uint8_t irq) {
+void pic_clear_mask(uint8_t irq) {
     uint16_t port = 0;
     if (irq < PIC_N_MASTER_LINES) {
         port = PIC_MASTER_DATA_PORT;
@@ -73,11 +63,4 @@ inline void pic_clear_mask(uint8_t irq) {
     uint8_t mask = port_io_read_byte(port);
     mask &= ~(1 << (irq % 8));
     port_io_write_byte(mask, port);
-}
-
-void pic_send_eoi(uint8_t irq) {
-    port_io_write_byte(0x20, PIC_MASTER_COMMAND_PORT);
-    if (irq >= PIC_N_MASTER_LINES) {
-        port_io_write_byte(0x20, PIC_SLAVE_COMMAND_PORT);
-    }
 }

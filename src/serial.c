@@ -5,6 +5,7 @@
  */
 
 #include <io.h>
+#include <kernel_common.h>
 #include <serial.h>
 #include <stdarg.h>
 #include <stdbool.h>
@@ -68,7 +69,7 @@ void serial_init(void) {
 }
 
 void serial_putchar(char c) {
-    uint8_t volatile val = 0;
+    uint8_t volatile val = 0;                        // more obvious
     while (!(val & (1 << SERIAL_LSR_THRE_SHIFT))) {  // while THRE bit is 0
         val = port_io_read_byte(SERIAL_COM1_BASE + SERIAL_LSR_OFFSET);
     }
@@ -98,6 +99,7 @@ static void serial_write_32_hex(uint32_t n, bool upper) {
 
 void serial_printf(const char *format, ...) {
     bool hit = false;
+    bool long_ _UNUSED = false;  // only for the printf format
     va_list args;
     va_start(args, format);
 
@@ -110,6 +112,8 @@ void serial_printf(const char *format, ...) {
             // second '%' in a row, ignore
             hit = false;
             serial_putchar('%');
+        } else if (hit && *format == 'l') {
+            long_ = true;
         }
 
         else if (hit) {
@@ -129,6 +133,7 @@ void serial_printf(const char *format, ...) {
                     break;
             }
             hit = false;
+            long_ = false;
         } else {
             serial_putchar(*format);
         }

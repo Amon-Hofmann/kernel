@@ -1,8 +1,0 @@
-/* io.c
- * Whatever this program does
- *
- * Author - Amon Hofmann
- */
-
-#include <io.h>
-#include <stdint.h>

@@ -13,7 +13,7 @@
 #define VGA_TERM_ROW_N_BYTES     (TERMINAL_N_COLS * 2)
 #define VGA_TERM_24_ROWS_N_BYTES (VGA_TERM_ROW_N_BYTES * (TERMINAL_N_ROWS - 1))
 
-volatile uint16_t *vga =
+static volatile uint16_t *vga =
     (volatile uint16_t *)VGA_MEM_ADDRESS;  // VGA MEM Address
 
 static uint16_t s_vga_term_attribute = 0;
@@ -23,7 +23,7 @@ static uint8_t s_vga_term_cursor_row = 0;
 void terminal_initialize(void) {
     s_vga_term_cursor_row = 0;
     s_vga_term_cursor_column = 0;
-    terminal_set_attribute(TERMINAL_FG_LIGHT_GREY, TERMINAL_BG_BLACK);
+    terminal_set_attribute(terminal_light_grey, terminal_black);
 
     for (uint16_t cursor = 0; cursor < TERMINAL_N_ROWS * TERMINAL_N_COLS;
          cursor++) {
@@ -42,9 +42,10 @@ static inline void terminal_inc_cursor(void) {
         s_vga_term_cursor_column = 0;
 
         if (s_vga_term_cursor_row >= TERMINAL_N_ROWS - 1) {
-            memmove((void *)vga, (void *)(vga + TERMINAL_N_COLS),
-                    VGA_TERM_24_ROWS_N_BYTES);
-
+            for (uint16_t i = 0; i < TERMINAL_N_COLS * (TERMINAL_N_ROWS - 1);
+                 i++) {
+                vga[i] = vga[i + TERMINAL_N_COLS];
+            }
             for (uint8_t index = 0; index < TERMINAL_N_COLS; index++) {
                 vga[TERMINAL_N_COLS * (TERMINAL_N_ROWS - 1) + index] =
                     s_vga_term_attribute << 8 | 0x20;

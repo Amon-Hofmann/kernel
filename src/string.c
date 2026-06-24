@@ -17,11 +17,9 @@ void *memcpy(void *restrict dest, const void *restrict src, size_t n) {
 }
 
 void *memmove(void *dest, const void *src, size_t n) {
-    char *temp;
-    const char *s;
+    char *temp = dest;
+    const char *s = src;
 
-    temp = dest;
-    s = src;
     if (dest >= src) {
         temp += n;
         s += n;

@@ -6,18 +6,17 @@
 
 #include <idt.h>
 #include <selectors.h>
-#include <stddef.h>
 
 #define IDT_INTERRUPT_GATE (0x8E)
-#define IDT_TRAP_GATE      (0x8F)
+// #define IDT_TRAP_GATE      (0x8F)
 
 static idt_entry_t idt_entries[IDT_ENTRY_LEN];
 
 static idt_ptr_t idt_ptr = {.limit = sizeof(idt_entries) - 1,
                             .base = (uint32_t)idt_entries};
 
-void idt_set_gate(uint8_t vector, uint32_t handler, uint16_t selector,
-                  uint8_t type_attr) {
+static void idt_set_gate(uint8_t vector, uint32_t handler, uint16_t selector,
+                         uint8_t type_attr) {
     idt_entries[vector].offset_low = (handler & 0x0000FFFF);
     idt_entries[vector].selector = selector;
     idt_entries[vector].zero = 0;
@@ -25,7 +24,7 @@ void idt_set_gate(uint8_t vector, uint32_t handler, uint16_t selector,
     idt_entries[vector].offset_high = (handler & 0xFFFF0000) >> 16;
 }
 
-void idt_flush(idt_ptr_t *idt_ptr);
+void idt_flush(idt_ptr_t *_idt_ptr);
 
 void isr0(void);
 void isr1(void);

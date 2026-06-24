@@ -4,6 +4,7 @@
  * Author - Amon Hofmann
  */
 
+#include <cpu.h>
 #include <gdt.h>
 #include <idt.h>
 #include <kernel.h>
@@ -28,7 +29,7 @@ void kernel_main(void) {
     terminal_initialize();
     terminal_writestring("Hello, Kernel!");
     terminal_writestring("\n");
-    for (uint16_t idx = 0; idx < 20; idx++) {
+    for (uint16_t idx = 0; idx < 200; idx++) {
         terminal_writestring("Tach auch, ich bins. Der ERWIN!");
     }
     while (true) {

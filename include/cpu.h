@@ -9,11 +9,11 @@
 
 #include <kernel_common.h>
 
-_INLINE void sti(void) {
+KERNEL_INLINE void sti(void) {
     __asm__ volatile("sti");
 }
 
-_INLINE void cli(void) {
+KERNEL_INLINE void cli(void) {
     __asm__ volatile("cli");
 }
 

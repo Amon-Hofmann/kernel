@@ -17,12 +17,12 @@ typedef struct gdt_entry {
     uint8_t access;      /* see access byte below */
     uint8_t granularity; /* flags[7:4] | limit[19:16][3:0] */
     uint8_t base_high;   /* base  bits 31:24 */
-} _PACKED gdt_entry_t;
+} KERNEL_PACKED gdt_entry_t;
 
 typedef struct gdt_ptr {
     uint16_t limit;
     uint32_t base;
-} _PACKED gdt_ptr_t;
+} KERNEL_PACKED gdt_ptr_t;
 
 void gdt_install(void);
 

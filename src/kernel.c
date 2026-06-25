@@ -7,7 +7,6 @@
 #include <cpu.h>
 #include <gdt.h>
 #include <idt.h>
-#include <kernel.h>
 #include <pic.h>
 #include <serial.h>
 #include <stdbool.h>

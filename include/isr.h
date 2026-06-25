@@ -15,9 +15,10 @@ struct interrupt_frame {
     uint32_t eip, cs, eflags;
 };
 
-void exception_handler(struct interrupt_frame *frame) _NONNULL _COLD _NORETURN;
+void exception_handler(struct interrupt_frame *frame)
+    KERNEL_NONNULL KERNEL_COLD KERNEL_NORETURN;
 
-void irq_handler(struct interrupt_frame *frame) _HOT _NONNULL;
+void irq_handler(struct interrupt_frame *frame) KERNEL_HOT KERNEL_NONNULL;
 // interrupt_frame->error_code is here the irq line (0-15)
 
 #endif  // ISR_H

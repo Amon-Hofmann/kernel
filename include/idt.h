@@ -19,12 +19,12 @@ typedef struct idt_entry {
     uint8_t zero;         /* always 0                    */
     uint8_t type_attr;    /* P, DPL, type                */
     uint16_t offset_high; /* handler address bits 31:16  */
-} _PACKED idt_entry_t;
+} KERNEL_PACKED idt_entry_t;
 
 typedef struct idt_ptr {
     uint16_t limit;
     uint32_t base;
-} _PACKED idt_ptr_t;
+} KERNEL_PACKED idt_ptr_t;
 
 // void idt_set_gate(uint8_t vector, uint32_t handler, uint16_t selector,
 // uint8_t type_attr);

@@ -9,9 +9,7 @@
 #include <string.h>
 #include <vgaterm.h>
 
-#define VGA_MEM_ADDRESS          (0xB8000)
-#define VGA_TERM_ROW_N_BYTES     (TERMINAL_N_COLS * 2)
-#define VGA_TERM_24_ROWS_N_BYTES (VGA_TERM_ROW_N_BYTES * (TERMINAL_N_ROWS - 1))
+#define VGA_MEM_ADDRESS (0xB8000)
 
 static volatile uint16_t *vga =
     (volatile uint16_t *)VGA_MEM_ADDRESS;  // VGA MEM Address
@@ -33,7 +31,8 @@ void terminal_initialize(void) {
     s_vga_term_cursor_column = 0;
 }
 
-void terminal_set_attribute(const char fg, const char bg) {
+void terminal_set_attribute(const enum terminal_color fg,
+                            const enum terminal_color bg) {
     s_vga_term_attribute = (uint16_t)bg << 4 | (uint16_t)fg;
 }
 

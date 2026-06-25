@@ -69,7 +69,8 @@ void serial_init(void) {
 }
 
 void serial_putchar(char c) {
-    uint8_t volatile val = 0;                        // more obvious
+    uint8_t val = 0;  // no volatile needed as values produced by port_io funcs
+                      // are volatile
     while (!(val & (1 << SERIAL_LSR_THRE_SHIFT))) {  // while THRE bit is 0
         val = port_io_read_byte(SERIAL_COM1_BASE + SERIAL_LSR_OFFSET);
     }
@@ -85,12 +86,7 @@ void serial_writestring(const char *s) {
 
 static void serial_write_32_hex(uint32_t n, bool upper) {
     serial_writestring("0x");
-    char const *where;
-    if (upper) {
-        where = "0123456789ABCDEF";
-    } else {
-        where = "0123456789abcdef";
-    }
+    char const *const where = upper ? "0123456789ABCDEF" : "0123456789abcdef";
     for (size_t i = 0; i < 8; i++) {
         serial_putchar(where[(n & 0xF0000000) >> 7 * 4]);
         n = n << 4;
@@ -99,7 +95,7 @@ static void serial_write_32_hex(uint32_t n, bool upper) {
 
 void serial_printf(const char *format, ...) {
     bool hit = false;
-    bool long_ _UNUSED = false;  // only for the printf format
+    bool long_ KERNEL_UNUSED = false;  // only for the printf format
     va_list args;
     va_start(args, format);
 
@@ -120,12 +116,22 @@ void serial_printf(const char *format, ...) {
             // format specifier
             switch (*format) {
                 case 'x':
-                    serial_write_32_hex(va_arg(args, uint32_t),
-                                        false);  // interpret as hex
+                    if (long_) {
+                        serial_write_32_hex(va_arg(args, unsigned long),
+                                            false);  // interpret as hex
+                    } else {
+                        serial_write_32_hex(va_arg(args, uint32_t),
+                                            false);  // interpret as hex
+                    }
                     break;
                 case 'X':
-                    serial_write_32_hex(va_arg(args, uint32_t),
-                                        true);  // interpret as hex
+                    if (long_) {
+                        serial_write_32_hex(va_arg(args, unsigned long),
+                                            true);  // interpret as hex
+                    } else {
+                        serial_write_32_hex(va_arg(args, uint32_t),
+                                            true);  // interpret as hex
+                    }
                     break;
                 case 's':
                     serial_writestring(

@@ -24,7 +24,7 @@ void pic_set_mask(uint8_t irq);
 void pic_clear_mask(uint8_t irq);
 void pic_irq_mask_all(void);
 
-_INLINE void pic_send_eoi(uint8_t irq) {
+KERNEL_INLINE void pic_send_eoi(uint8_t irq) {
     port_io_write_byte(0x20, PIC_MASTER_COMMAND_PORT);
     if (irq >= PIC_N_MASTER_LINES) {
         port_io_write_byte(0x20, PIC_SLAVE_COMMAND_PORT);

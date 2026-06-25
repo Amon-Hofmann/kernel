@@ -11,10 +11,11 @@
 #include <stddef.h>
 
 void *memcpy(void *restrict dest, const void *restrict src,
-             size_t n) _WUNUSED _RET_NONNULL _NONNULL;
+             size_t n) KERNEL_WUNUSED KERNEL_RET_NONNULL KERNEL_NONNULL;
 
-void *memmove(void *dest, const void *src, size_t n) _RET_NONNULL _NONNULL;
+void *memmove(void *dest, const void *src,
+              size_t n) KERNEL_RET_NONNULL KERNEL_NONNULL;
 
-void *memset(void *s, int c, size_t n) _RET_NONNULL _NONNULL;
+void *memset(void *s, int c, size_t n) KERNEL_RET_NONNULL KERNEL_NONNULL;
 
 #endif  // STRING_H

@@ -8,7 +8,6 @@
 #include <kernel_common.h>
 #include <pic.h>
 #include <serial.h>
-#include <stdbool.h>
 
 static const char *const itr_names[32] = {"Divide Error",
                                           "Debug",
@@ -43,16 +42,15 @@ static const char *const itr_names[32] = {"Divide Error",
                                           "Reserved",
                                           "Reserved"};
 
-_COLD _NORETURN void exception_handler(struct interrupt_frame *frame) {
+KERNEL_COLD KERNEL_NORETURN void exception_handler(
+    struct interrupt_frame *frame) {
     serial_printf("EXCEPTION: %s (#%lx)\n", itr_names[frame->vector],
                   (unsigned long)frame->vector);
     serial_printf("EIP: %lX CS: %lX EFLAGS: %lX ERR: %lX\n",
                   (unsigned long)frame->eip, (unsigned long)frame->cs,
                   (unsigned long)frame->eflags,
                   (unsigned long)frame->error_code);
-    __asm__ volatile("cli");
-    __asm__ volatile("1: hlt");
-    __asm__ volatile("jmp 1b");
+    __asm__ volatile("cli\n\t1: hlt\n\tjmp 1b");
     __builtin_unreachable();
 }
 
@@ -72,7 +70,7 @@ static const char *const irq_names[16] = {"System Timer (PIT)",
                                           "FPU / coprocessor",
                                           "Primary ATA",
                                           "Secondary ATA"};
-_HOT void irq_handler(struct interrupt_frame *frame) {
+KERNEL_HOT void irq_handler(struct interrupt_frame *frame) {
     serial_printf("IRQ: %s (#%lx)\n", irq_names[frame->error_code],
                   (unsigned long)frame->error_code);
     serial_printf("EIP: %lX CS: %lX EFLAGS: %lX ERR: %lX\n",

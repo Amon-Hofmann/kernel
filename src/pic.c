@@ -8,7 +8,7 @@
 #include <pic.h>
 #include <stdbool.h>
 
-_INLINE void pic_init_chip(bool master) {
+KERNEL_INLINE void pic_init_chip(bool master) {
     // master / slave -> 0x04=master, 0x20=slave
     uint16_t cmd_port = 0, dat_port = 0;
     uint8_t line = 0;

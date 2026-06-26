@@ -4,6 +4,7 @@
  * Author - Amon Hofmann
  */
 
+#include <io.h>
 #include <isr.h>
 #include <kernel_common.h>
 #include <pic.h>
@@ -70,7 +71,11 @@ static const char *const irq_names[16] = {"System Timer (PIT)",
                                           "FPU / coprocessor",
                                           "Primary ATA",
                                           "Secondary ATA"};
+
 KERNEL_HOT void irq_handler(struct interrupt_frame *frame) {
+    if (frame->error_code == 1) {
+        port_io_read_byte(0x60);  // drain i8042 output buffer so IRQ1 deasserts
+    }
     serial_printf("IRQ: %s (#%lx)\n", irq_names[frame->error_code],
                   (unsigned long)frame->error_code);
     serial_printf("EIP: %lX CS: %lX EFLAGS: %lX ERR: %lX\n",

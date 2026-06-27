@@ -8,6 +8,7 @@
 #include <isr.h>
 #include <kernel_common.h>
 #include <pic.h>
+#include <pit.h>
 #include <serial.h>
 
 static const char *const itr_names[32] = {"Divide Error",
@@ -76,11 +77,15 @@ KERNEL_HOT void irq_handler(struct interrupt_frame *frame) {
     if (frame->error_code == 1) {
         port_io_read_byte(0x60);  // drain i8042 output buffer so IRQ1 deasserts
     }
-    serial_printf("IRQ: %s (#%lx)\n", irq_names[frame->error_code],
-                  (unsigned long)frame->error_code);
-    serial_printf("EIP: %lX CS: %lX EFLAGS: %lX ERR: %lX\n",
-                  (unsigned long)frame->eip, (unsigned long)frame->cs,
-                  (unsigned long)frame->eflags,
-                  (unsigned long)frame->error_code);
+    if (frame->error_code == 0) {
+        pit_inc_ticks();
+    } else {
+        serial_printf("IRQ: %s (#%lx)\n", irq_names[frame->error_code],
+                      (unsigned long)frame->error_code);
+        serial_printf("EIP: %lX CS: %lX EFLAGS: %lX ERR: %lX\n",
+                      (unsigned long)frame->eip, (unsigned long)frame->cs,
+                      (unsigned long)frame->eflags,
+                      (unsigned long)frame->error_code);
+    }
     pic_send_eoi(frame->error_code);
 }

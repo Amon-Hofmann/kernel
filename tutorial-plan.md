@@ -271,14 +271,34 @@ IRQ0 and confirm the timer fires.
 ### Session 6 — PIT & Timer Interrupts (~3.5h)
 
 **What you build:** A global tick counter incremented on every IRQ0. A
-`ksleep(ms)` busy-wait. The kernel prints "tick N" visibly.
+`ksleep_ms(ms)` busy-wait. The kernel prints "tick N" to serial at a
+configurable rate.
 
 **Topics covered:**
 - The 8253/8254 PIT: channels, modes, divisor calculation from 1.193182 MHz base
-- Programming channel 0 for periodic mode
-- Writing the IRQ0 handler in C (called via the IDT stub from session 4)
-- Volatile and why the tick counter must be `volatile`
+- Programming channel 0 for rate-generator mode (mode 2, command byte `0x36`)
+- `pit_init(hz)`: writing divisor low/high bytes to port `0x40`
+- Writing the IRQ0 handler in C (called via the IDT stub from session 5)
+- `volatile` and why the tick counter must be `volatile`
+- Unsigned wrap-around arithmetic for robust sleep timing
+- `hlt` inside the busy-wait loop
 - Busy-wait vs. proper sleep (foreshadow scheduling)
+
+**Concept check:**
+1. Why must `pit_ticks` be declared `volatile`? What specific misbehaviour
+   would you observe if it were not, and which compiler optimisation causes it?
+2. The PIT input clock is 1.193182 MHz. You request 100 Hz. The true divisor
+   is 11931.82 — a non-integer. What happens to timer accuracy, and is there
+   anything you can do about it?
+3. `ksleep_ms` uses `pit_ticks - start` rather than `pit_ticks >= start +
+   ticks`. Why does the subtraction form handle counter wrap-around correctly
+   while the comparison form does not?
+
+**Mutation exercise:**
+- Part A: Switch to PIT mode 0 (command byte `0x30`). Observe what happens to
+  the tick rate and explain why.
+- Part B: Remove `volatile` from `pit_ticks`, compile with `-O2`, and observe
+  whether `ksleep_ms` terminates. Restore both changes.
 
 ---
 

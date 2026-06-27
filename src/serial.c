@@ -93,6 +93,22 @@ static void serial_write_32_hex(uint32_t n, bool upper) {
     }
 }
 
+static void serial_write_32_u(uint32_t n) {
+    char buf[10];
+    int i = 0;
+    if (n == 0) {
+        serial_putchar('0');
+        return;
+    }
+    while (n > 0) {
+        buf[i++] = '0' + (n % 10);
+        n /= 10;
+    }
+    while (i > 0) {
+        serial_putchar(buf[--i]);
+    }
+}
+
 void serial_printf(const char *format, ...) {
     bool hit = false;
     bool long_ KERNEL_UNUSED = false;  // only for the printf format
@@ -115,6 +131,14 @@ void serial_printf(const char *format, ...) {
         else if (hit) {
             // format specifier
             switch (*format) {
+                case 'u':
+                    if (long_) {
+                        serial_write_32_u(va_arg(args, unsigned long));
+                    } else {
+                        serial_write_32_u(va_arg(args, uint32_t));
+                    }
+                    break;
+
                 case 'x':
                     if (long_) {
                         serial_write_32_hex(va_arg(args, unsigned long),
@@ -136,6 +160,10 @@ void serial_printf(const char *format, ...) {
                 case 's':
                     serial_writestring(
                         va_arg(args, const char *));  // interpret as string
+                    break;
+                default:
+                    serial_writestring("<Not Implemented yet>");
+                    ;
                     break;
             }
             hit = false;

@@ -8,6 +8,7 @@
 #include <gdt.h>
 #include <idt.h>
 #include <pic.h>
+#include <pit.h>
 #include <serial.h>
 #include <stdbool.h>
 #include <vgaterm.h>
@@ -23,6 +24,8 @@ void kernel_main(void) {
     serial_init();
     sti();
 
+    pit_init(100);
+
     serial_writestring("Hello from serial\n");
 
     terminal_initialize();
@@ -32,6 +35,8 @@ void kernel_main(void) {
         terminal_writestring("Tach auch, ich bins. Der ERWIN!");
     }
     while (true) {
-        __asm__ volatile("hlt");
+        serial_printf("Tick: %lu \n", (long unsigned)pit_get_ticks());
+        ksleep_ms(1000);
+        //__asm__ volatile("hlt");
     }
 }

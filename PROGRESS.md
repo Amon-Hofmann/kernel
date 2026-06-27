@@ -32,8 +32,8 @@
 
 | # | Session | Status | Tag | Notes |
 |---|---------|--------|-----|-------|
-| 05 | PIC & IRQ routing | [ ] | | |
-| 06 | PIT & timer interrupts | [ ] | | |
+| 05 | PIC & IRQ routing | [x] | session-05-complete | PIC remapped to IRQs 32–47; IRQ stubs via isr_stubs.S; pic_send_eoi; keyboard IRQ1 requires port 0x60 drain before EOI |
+| 06 | PIT & timer interrupts | [x] | session-06-complete | mode 3 (0x36) at 100 Hz; volatile pit_ticks; ksleep_ms with unsigned subtraction for wrap-around; hlt in spin loop; 0x36 is mode 3 not mode 2 |
 | 07 | PS/2 keyboard | [ ] | | |
 | 08 | Serial / UART debug output | [ ] | | |
 

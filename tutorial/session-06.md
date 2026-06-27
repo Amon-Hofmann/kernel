@@ -65,12 +65,14 @@ generator) is `0x36`:
 |------|-------|---------|
 | 7:6  | `00`  | Select channel 0 |
 | 5:4  | `11`  | Access mode: lobyte/hibyte |
-| 3:1  | `010` | Operating mode 2: rate generator |
+| 3:1  | `011` | Operating mode 3: square wave generator |
 | 0    | `0`   | Binary (not BCD) counting |
 
-**Mode 2 (rate generator)** reloads the countdown register automatically on
-each expiry and asserts IRQ0 for one clock cycle. This is the correct mode for
-a periodic timer — the counter reloads itself without any software intervention.
+**Mode 3 (square wave generator)** drives the output high for half the period
+and low for the other half, reloading the countdown register automatically.
+IRQ0 fires on each falling edge — once per period — making it equivalent to
+mode 2 for software tick counting. The counter reloads itself without any
+software intervention.
 
 The initialisation sequence for 100 Hz:
 
@@ -206,7 +208,7 @@ Answer these before running `/review`:
 ## Mutation exercise
 
 **Part A:** Change `pit_init` to use mode 0 (interrupt on terminal count,
-command byte `0x30`) instead of mode 2. Observe what happens to the tick rate
+command byte `0x30`) instead of mode 3. Observe what happens to the tick rate
 on serial and explain why.
 
 **Part B:** Remove the `volatile` qualifier from `pit_ticks`. Compile with

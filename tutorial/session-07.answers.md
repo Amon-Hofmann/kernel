@@ -16,3 +16,7 @@
    shift held, would stay at 'A' instead of going back to 'a'.
 
 ## Mutation exercise
+
+- A: Not implemented by qemu
+
+- B: output matched expectation as upper and lowercase letters were flipped

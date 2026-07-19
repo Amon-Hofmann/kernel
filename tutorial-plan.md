@@ -325,16 +325,27 @@ character to the terminal.
 
 ---
 
-### Session 8 — Serial / UART Debug Output (~3h)
+### Session 8 — Extending `serial_printf` (~2h)
 
-**What you build:** `kprintf` output mirrored to COM1. QEMU shows it in the
-terminal so you can debug without a graphical window.
+**What you build:** Add `%d` (signed decimal) and `%c` (character) to the
+existing `serial_printf`. The UART driver was built in session 3.1; this
+session focuses on the variadic argument mechanism and signed integer handling.
 
 **Topics covered:**
-- 16550 UART registers, baud rate divisor
-- QEMU `-serial stdio` flag
-- Why serial is invaluable for debugging the rest of the tutorial
-- Optionally: a minimal `kprintf` with `%s`, `%d`, `%x`, `%c`
+- `stdarg.h`: `va_list`, `va_start`, `va_arg`, `va_end`
+- Argument promotion rules (char/short → int before variadic push)
+- Signed vs unsigned: why `%d` cannot reuse the unsigned printer directly
+- `INT32_MIN` negation overflow and the `int64_t` workaround
+- `__attribute__((format(printf, m, n)))` — compile-time format checking
+
+**Concept checks:**
+1. What does `va_arg(args, int)` do at the machine level on i386? What happens if you read `long long` when an `int` was pushed?
+2. Why can't `%d` cast to `uint32_t` and call `serial_write_32_u` directly — which specific value breaks it?
+3. What do the numbers in `format(printf, 1, 2)` refer to, and what bug class does the attribute catch?
+
+**Mutation exercises:**
+- A: Read `%d` arg as `unsigned int`, skip sign check — call with -1 and observe output.
+- B: Remove `format(printf, 1, 2)` — pass `%d` with a `char *` — does GCC warn?
 
 ---
 

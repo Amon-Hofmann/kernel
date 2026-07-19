@@ -78,10 +78,10 @@ like a huge `uint32_t`.
 The correct approach:
 
 ```c
-static void serial_write_32_d(int32_t n) {
+static void serial_write_32_d(int n) {
     if (n < 0) {
         serial_putchar('-');
-        serial_write_32_u((uint32_t)(-(int64_t)n);
+        serial_write_32_u((uint32_t)(-(int64_t)n));
     } else {
         serial_write_32_u((uint32_t)n);
     }
@@ -126,7 +126,7 @@ garbage at runtime.
 
 **`src/serial.c`** — add two things:
 
-1. A `serial_write_32_d(int32_t n)` helper (static, not declared in the
+1. A `serial_write_32_d(int n)` helper (static, not declared in the
    header) that handles the sign and calls `serial_write_32_u`.
 
 2. Two new cases in the `switch` inside `serial_printf`:
@@ -146,16 +146,22 @@ make clean && make iso && make run
 Add a test to `kernel_main` before the tick loop:
 
 ```c
-serial_printf("signed: %d %d %d\n", 0, -1, -2147483648);
+serial_printf("signed: %d %d\n", 0, -42);
 serial_printf("char:   %c%c%c\n", 'O', 'K', '\n');
 ```
 
 Expected serial output:
 
 ```
-signed: 0 -1 -2147483648
+signed: 0 -42
 char:   OK
 ```
+
+`INT32_MIN` (`-2147483648`) is worth testing separately but cannot be written
+as a bare literal in a format call — the compiler parses `2147483648` as
+`long` (it exceeds `INT_MAX`), which conflicts with `%d`'s expected `int` and
+triggers a `-Wformat` error. Use `(int)(-2147483647 - 1)` if you want to
+test that boundary.
 
 ---
 

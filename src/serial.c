@@ -109,6 +109,15 @@ static void serial_write_32_u(uint32_t n) {
     }
 }
 
+static void serial_write_32_d(int n) {
+    if (n < 0) {
+        serial_putchar('-');
+        serial_write_32_u((uint32_t)(-(int64_t)n));
+    } else {
+        serial_write_32_u((uint32_t)n);
+    }
+}
+
 void serial_printf(const char *format, ...) {
     bool hit = false;
     bool long_ KERNEL_UNUSED = false;  // only for the printf format
@@ -131,6 +140,14 @@ void serial_printf(const char *format, ...) {
         else if (hit) {
             // format specifier
             switch (*format) {
+                case 'd':
+                    if (long_) {
+                        serial_write_32_d(va_arg(args, long int));
+                        break;
+                    } else {
+                        serial_write_32_d(va_arg(args, int));
+                        break;
+                    }
                 case 'u':
                     if (long_) {
                         serial_write_32_u(va_arg(args, unsigned long));
@@ -160,6 +177,9 @@ void serial_printf(const char *format, ...) {
                 case 's':
                     serial_writestring(
                         va_arg(args, const char *));  // interpret as string
+                    break;
+                case 'c':
+                    serial_putchar((char)va_arg(args, int));
                     break;
                 default:
                     serial_writestring("<Not Implemented yet>");

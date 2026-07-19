@@ -28,6 +28,8 @@ void kernel_main(void) {
     pit_init(100);
 
     serial_writestring("Hello from serial\n");
+    serial_printf("signed: %d %d %d\n", 0, -42, (int)INT32_MIN);
+    serial_printf("char:   %c%c%c\n", 'O', 'K', '\n');
 
     terminal_initialize();
     terminal_writestring("Hello, Kernel!");

@@ -314,6 +314,15 @@ character to the terminal.
 - Shift, Caps Lock state
 - Interrupt-driven input (IRQ1) vs. polling
 
+**Concept checks:**
+1. Why must port 0x60 be read before sending EOI? What breaks if the order is reversed?
+2. Make code for A is 0x1E — what is the break code and how does the driver tell them apart?
+3. Why XOR (not OR) for `shift_held ^ (caps_active && isalpha)` — concrete counter-example with Caps Lock on + Shift held.
+
+**Mutation exercises:**
+- A: Comment out `port_io_read_byte(0x60)` before EOI — observe repeated characters and explain.
+- B: Swap `lower`/`upper` table references — verify shifted/unshifted output inverts.
+
 ---
 
 ### Session 8 — Serial / UART Debug Output (~3h)

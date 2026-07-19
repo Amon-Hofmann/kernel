@@ -19,7 +19,8 @@ void kernel_main(void) {
 
     pic_remap();
     pic_irq_mask_all();
-    pic_clear_mask(0x0);
+    pic_clear_mask(0x0);  // timer
+    pic_clear_mask(0x1);  // keyboard
 
     serial_init();
     sti();

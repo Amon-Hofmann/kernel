@@ -351,6 +351,13 @@ session focuses on the variadic argument mechanism and signed integer handling.
 
 ## Phase 3 — Memory Management (Sessions 9–12)
 
+> **Difficulty progression (session 9 onward):** Tutorial files no longer
+> provide full implementation skeletons. Each function is described at a
+> high level — what it receives, what it must do, and any non-obvious
+> decisions — but the student derives the code from the explanation.
+> Hardware protocols and data-structure mechanics are still shown as code
+> where needed; function bodies are not.
+
 ### Session 9 — Physical Memory Manager (~4h)
 
 **What you build:** A bitmap allocator. `pmm_alloc_frame()` returns a free 4 KiB

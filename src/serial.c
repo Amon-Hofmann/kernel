@@ -93,6 +93,15 @@ static void serial_write_32_hex(uint32_t n, bool upper) {
     }
 }
 
+static void serial_write_32_b(uint32_t n) {
+    serial_writestring("0b");
+    char const *const where = "01";
+    for (size_t i = 0; i < 32; i++) {
+        serial_putchar(where[(n & 0x80000000) >> 31]);
+        n = n << 1;
+    }
+}
+
 static void serial_write_32_u(uint32_t n) {
     char buf[10];
     int i = 0;
@@ -140,6 +149,14 @@ void serial_printf(const char *format, ...) {
         else if (hit) {
             // format specifier
             switch (*format) {
+                case 'b':
+                    if (long_) {
+                        serial_write_32_b(va_arg(args, long int));
+                        break;
+                    } else {
+                        serial_write_32_b(va_arg(args, int));
+                        break;
+                    }
                 case 'd':
                     if (long_) {
                         serial_write_32_d(va_arg(args, long int));

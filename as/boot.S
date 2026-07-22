@@ -22,6 +22,8 @@ stack_top:
 .type _start, @function
 _start:
     mov $stack_top, %esp    /* point stack register at top (stack grows down) */
+    push %ebx               /* mbi */
+    push %eax               /* magic */
     call kernel_main        /* call main from kernel*/
     cli                     /* disable interrupts */
     hlt                     /* halt the CPU */

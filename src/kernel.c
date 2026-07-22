@@ -7,13 +7,15 @@
 #include <cpu.h>
 #include <gdt.h>
 #include <idt.h>
+#include <multiboot.h>
 #include <pic.h>
 #include <pit.h>
+#include <pmm.h>
 #include <serial.h>
 #include <stdbool.h>
 #include <vgaterm.h>
 
-void kernel_main(void) {
+void kernel_main(KERNEL_UNUSED uint32_t magic, multiboot_info_t *mbi) {
     gdt_install();
     idt_install();
 
@@ -37,6 +39,7 @@ void kernel_main(void) {
     for (uint16_t idx = 0; idx < 200; idx++) {
         terminal_writestring("Tach auch, ich bins. Der ERWIN!");
     }
+    pmm_init(mbi);
     while (true) {
         serial_printf("Tick: %lu \n", (long unsigned)pit_get_ticks());
         ksleep_ms(1000);

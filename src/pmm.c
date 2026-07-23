@@ -34,7 +34,7 @@ static void KERNEL_UNUSED KERNEL_COLD print_bitmap_idx(uint16_t idx_start,
 }
 
 KERNEL_UNUSED KERNEL_COLD static void test_alignment(void) {
-    serial_printf("aligning onto 8");
+    serial_printf("aligning onto 8\n");
     for (uint8_t n = 0; n < UINT8_MAX; n++) {
         serial_printf("n: %b    aligned_up: %b\n", n, ALIGN_UP(n, 8));
     }
@@ -43,27 +43,20 @@ KERNEL_UNUSED KERNEL_COLD static void test_alignment(void) {
     }
 }
 
-KERNEL_UNUSED static void mark_used(uintptr_t addr, uintptr_t len) {
-    KERNEL_UNUSED uintptr_t end_addr = addr + len;
-    KERNEL_UNUSED uintptr_t end_frame = ALIGN_UP(addr + len, FRAME_SIZE);
-    KERNEL_UNUSED uintptr_t start_frame = ALIGN_DOWN(addr, FRAME_SIZE);
-    KERNEL_UNUSED uint16_t idx_start = 0;
+static void mark_used(uintptr_t addr, uintptr_t len) {
+    uintptr_t end_addr = addr + len;
+    uintptr_t start_frame = ALIGN_DOWN(addr, FRAME_SIZE) / FRAME_SIZE;
+    uintptr_t stop_frame = ALIGN_UP(end_addr, FRAME_SIZE) / FRAME_SIZE;
+#ifdef DEBUG
     serial_printf("addr:        %lX\n", (unsigned long)addr);
     serial_printf("end addr:    %lX\n", (unsigned long)end_addr);
-    serial_printf("end frame:   %lX\n", (unsigned long)end_frame);
     serial_printf("start frame: %lX\n", (unsigned long)start_frame);
+    serial_printf("stop_frame:  %lX\n", (unsigned long)stop_frame);
+#endif  // DEBUG
 
-    /*
-        for(uint16_t index=0; ;){
-
-        }
-
-        for (uint16_t N = addr; N <= ALIGN_UP(addr + len, FRAME_SIZE); N++) {
-            serial_printf( "N: %X; addr: %lX; align_up(addr + len, frame_size):
-       %lX\n", N, (unsigned long)addr, (unsigned long)ALIGN_UP(addr + len,
-       FRAME_SIZE));  // DEBUG bitmap[N / 32] |= (1u << (N % 32));
-        }
-        */
+    for (uint16_t N = start_frame; N < stop_frame; N++) {
+        bitmap[N / 32] |= (1u << (N % 32));
+    }
 }
 
 KERNEL_UNUSED static void mark_free(uintptr_t addr, uintptr_t len) {
@@ -77,9 +70,11 @@ KERNEL_UNUSED static bool test_frame(uint16_t N) {
 }
 
 void pmm_init(KERNEL_UNUSED multiboot_info_t *mbi) {
-    // mark_used(10, FRAME_SIZE);
-    // print_bitmap_idx(0, 100);
+    mark_used(10, FRAME_SIZE);
+    print_bitmap_idx(0, 10);
+#ifdef DEBUG
     test_alignment();
+#endif  // DEBUG
 }
 
 uintptr_t pmm_alloc_frame(void);

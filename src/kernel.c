@@ -35,10 +35,7 @@ void kernel_main(KERNEL_UNUSED uint32_t magic, multiboot_info_t *mbi) {
 
     terminal_initialize();
     terminal_writestring("Hello, Kernel!");
-    terminal_writestring("\n");
-    for (uint16_t idx = 0; idx < 200; idx++) {
-        terminal_writestring("Tach auch, ich bins. Der ERWIN!");
-    }
+
     pmm_init(mbi);
     while (true) {
         serial_printf("Tick: %lu \n", (long unsigned)pit_get_ticks());

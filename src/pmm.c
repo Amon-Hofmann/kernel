@@ -16,7 +16,7 @@
 
 #define ALIGN_DOWN(x, a) ((x) & ~((a) - 1))
 #define ALIGN_UP(x, a)   (((x) + (a) - 1) & ~((a) - 1))
-#define BITMAP_MAX_INDEX (MAX_FRAMES / 32)
+#define BITMAP_MAX_INDEX ((MAX_FRAMES) / 32)
 
 static uint32_t bitmap[BITMAP_MAX_INDEX]; /* 128 KiB */
 
@@ -34,7 +34,7 @@ static void KERNEL_UNUSED KERNEL_COLD print_bitmap_idx(uint16_t idx_start,
 }
 
 KERNEL_UNUSED KERNEL_COLD static void test_alignment(void) {
-    serial_printf("aligning onto 8\n");
+    serial_writestring("aligning onto 8\n");
     for (uint8_t n = 0; n < UINT8_MAX; n++) {
         serial_printf("n: %b    aligned_up: %b\n", n, ALIGN_UP(n, 8));
     }
@@ -60,7 +60,10 @@ static void mark_used(uintptr_t addr, uintptr_t len) {
 }
 
 KERNEL_UNUSED static void mark_free(uintptr_t addr, uintptr_t len) {
-    for (uint16_t N = addr; N <= ALIGN_DOWN(addr + len, FRAME_SIZE); N++) {
+    uintptr_t end_addr = addr + len;
+    uintptr_t start_frame = ALIGN_UP(addr, FRAME_SIZE) / FRAME_SIZE;
+    uintptr_t stop_frame = ALIGN_DOWN(end_addr, FRAME_SIZE) / FRAME_SIZE;
+    for (uint16_t N = start_frame; N < stop_frame; N++) {
         bitmap[N / 32] &= ~(1u << (N % 32));
     }
 }
@@ -70,8 +73,16 @@ KERNEL_UNUSED static bool test_frame(uint16_t N) {
 }
 
 void pmm_init(KERNEL_UNUSED multiboot_info_t *mbi) {
-    mark_used(10, FRAME_SIZE);
+    mark_used(0, 3 * FRAME_SIZE + 10);
     print_bitmap_idx(0, 10);
+
+    mark_free(0, 3 * FRAME_SIZE + 10);
+    print_bitmap_idx(0, 10);
+
+    serial_writestring("printing bitmap\n");
+    print_bitmap_idx(BITMAP_MAX_INDEX - 10, BITMAP_MAX_INDEX);
+    serial_writestring("done..\n");
+
 #ifdef DEBUG
     test_alignment();
 #endif  // DEBUG

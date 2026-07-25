@@ -37,6 +37,9 @@
 
 static uint32_t bitmap[BITMAP_LEN]; /* 128 KiB */
 
+extern uint32_t kernel_phys_start;
+extern uint32_t kernel_phys_end;
+
 KERNEL_UNUSED KERNEL_INLINE uintptr_t frame_to_addr(uintptr_t frame) {
     return ((uintptr_t)frame) << 12;
 }
@@ -155,6 +158,25 @@ KERNEL_UNUSED static void test_frames(void) {
 
 void pmm_init(KERNEL_UNUSED multiboot_info_t *mbi) {
     memset(bitmap, 0xFF, sizeof(bitmap));  // mark all frames used
+
+    if (mbi->flags & (1 << 6)) {
+        multiboot_mmap_entry_t *mmap_start =
+            (multiboot_mmap_entry_t *)mbi->mmap_addr;
+        multiboot_mmap_entry_t *entry = mmap_start;
+        uint32_t offset = 0;
+
+        while (offset < mbi->mmap_length) {
+            if (entry->type == MULTIBOOT_MEMORY_AVAILABLE) {  // available ram
+                entry =
+                    (multiboot_mmap_entry_t *)(uintptr_t)entry + entry->size +
+                    sizeof(
+                        entry
+                            ->size);  // cast to non-pointer type for arithmetic
+            }
+        }
+    } else {
+        serial_writestring("multiboot mmap header not valid!");
+    }
 }
 
 uintptr_t pmm_alloc_frame(void) {

@@ -153,22 +153,54 @@ KERNEL_UNUSED static void test_frames(void) {
 }
 
 void pmm_init(KERNEL_UNUSED multiboot_info_t *mbi) {
-    memset(bitmap, 0xFF, sizeof(bitmap));  // mark all frames used
+    // mark all frames used
+    memset(bitmap, 0xFF, sizeof(bitmap));
 
+    // mark frames free marked as available in multiboot header
     if (mbi->flags & (1 << 6)) {
         multiboot_mmap_entry_t *mmap_start = (multiboot_mmap_entry_t *)mbi->mmap_addr;
         multiboot_mmap_entry_t *entry = mmap_start;
         uint32_t offset = 0;
+        uintptr_t base = 0;
+        uintptr_t len = 0;
 
         while (offset < mbi->mmap_length) {
-            if (entry->type == MULTIBOOT_MEMORY_AVAILABLE) {  // available ram
-                entry = (multiboot_mmap_entry_t *)(uintptr_t)entry + entry->size +
-                        sizeof(entry->size);  // cast to non-pointer type for arithmetic
+            if (entry->addr > (uint64_t)UINT32_MAX) {
+                entry = (multiboot_mmap_entry_t *)((
+                    uintptr_t)(entry + entry->size +
+                               sizeof(entry->size)));  // cast to non-pointer type for
+                                                       // arithmetic
+                offset += ((uintptr_t)(entry + entry->size + sizeof(entry->size)));
+                continue;
             }
+            if (entry->type == MULTIBOOT_MEMORY_AVAILABLE) {  // available ram
+                base = entry->addr;
+                len = entry->addr + entry->len > (uint64_t)UINT32_MAX
+                          ? UINT32_MAX - (uintptr_t)base
+                          : (uintptr_t)entry->len;
+                mark_free(base, len);
+            }
+            entry = (multiboot_mmap_entry_t *)((
+                uintptr_t)(entry + entry->size +
+                           sizeof(
+                               entry->size)));  // cast to non-pointer type for arithmetic
+            offset += ((uintptr_t)(entry + entry->size + sizeof(entry->size)));
         }
     } else {
         serial_writestring("multiboot mmap header not valid!");
     }
+
+    // remark used where we know better than multiboot
+    // first 1MiB
+    mark_used(0, 1024 * 1024 - 1);
+
+    uintptr_t ks = (uintptr_t)&kernel_phys_start;
+    uintptr_t ke = (uintptr_t)&kernel_phys_end;
+
+    // kernel .text, .rodata, .data and .bss
+    mark_used(ks, ke - ks);
+    print_bitmap(addr_to_frame(ALIGN_DOWN(1024 * 1024 - 1 - 3 * FRAME_SIZE, FRAME_SIZE)),
+                 addr_to_frame(ALIGN_UP(1024 * 1024 - 1, FRAME_SIZE)));
 }
 
 uintptr_t pmm_alloc_frame(void) {

@@ -78,8 +78,8 @@ void keyboard_handler(uint8_t scancode) {
                 toggle_caps();
                 break;
             default: {
-                use_upper = shift_held ^ (caps_active && lower[make] >= 'a' &&
-                                          lower[make] <= 'z');
+                use_upper = shift_held ^
+                            (caps_active && lower[make] >= 'a' && lower[make] <= 'z');
                 ch = use_upper ? upper[make] : lower[make];
             }; break;
         }

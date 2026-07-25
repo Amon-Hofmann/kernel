@@ -40,32 +40,25 @@
 
 void serial_init(void) {
     // 1. Set DLAB=1 (LCR bit 7) to access the divisor SERIAL: 8N1
-    port_io_write_byte(SERIAL_LCR_8N1_DLAB_1,
-                       SERIAL_COM1_BASE + SERIAL_LCR_OFFSET);
+    port_io_write_byte(SERIAL_LCR_8N1_DLAB_1, SERIAL_COM1_BASE + SERIAL_LCR_OFFSET);
 
     // 2. Write baud rate divisor low byte to offset +0
-    port_io_write_byte(SERIAL_DLL_MAX_RATE,
-                       SERIAL_COM1_BASE + SERIAL_DLL_OFFSET);
+    port_io_write_byte(SERIAL_DLL_MAX_RATE, SERIAL_COM1_BASE + SERIAL_DLL_OFFSET);
 
     // 3. Write baud rate divisor high byte to offset +1
-    port_io_write_byte(SERIAL_DLH_MAX_RATE,
-                       SERIAL_COM1_BASE + SERIAL_DLH_OFFSET);
+    port_io_write_byte(SERIAL_DLH_MAX_RATE, SERIAL_COM1_BASE + SERIAL_DLH_OFFSET);
 
     // 4. Clear DLAB, set 8N1: write `0x03` to LCR (offset +3)
-    port_io_write_byte(SERIAL_LCR_8N1_DLAB_0,
-                       SERIAL_COM1_BASE + SERIAL_LCR_OFFSET);
+    port_io_write_byte(SERIAL_LCR_8N1_DLAB_0, SERIAL_COM1_BASE + SERIAL_LCR_OFFSET);
 
     // 5. Enable and reset FIFOs: write `0xC7` to FCR (offset +2)
-    port_io_write_byte(SERIAL_FCR_FIFO_MODE,
-                       SERIAL_COM1_BASE + SERIAL_FCR_OFFSET);
+    port_io_write_byte(SERIAL_FCR_FIFO_MODE, SERIAL_COM1_BASE + SERIAL_FCR_OFFSET);
 
     // 6. Enable DTR and RTS: write `0x03` to MCR (offset +4)
-    port_io_write_byte(SERIAL_MCR_NO_INTERRUPTS,
-                       SERIAL_COM1_BASE + SERIAL_MCR_OFFSET);
+    port_io_write_byte(SERIAL_MCR_NO_INTERRUPTS, SERIAL_COM1_BASE + SERIAL_MCR_OFFSET);
 
     // 7. Disable all interrupts: write `0x00` to IER (offset +1)
-    port_io_write_byte(SERIAL_IER_NO_INTERRUPTS,
-                       SERIAL_COM1_BASE + SERIAL_IER_OFFSET);
+    port_io_write_byte(SERIAL_IER_NO_INTERRUPTS, SERIAL_COM1_BASE + SERIAL_IER_OFFSET);
 }
 
 void serial_putchar(char c) {

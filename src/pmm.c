@@ -18,12 +18,11 @@
 // addresses from 0 to (FRAME_SIZE * MAX_FRAMES) = 2^32
 
 #define ALIGN_DOWN(x, a) ((x) & ~((a) - 1))
-#define ALIGN_UP(x, a)                                                     \
-    (((x) & ((uintptr_t)(a) - 1U))                                         \
-         ? ((UINTPTR_MAX - (x) >=                                          \
-             ((uintptr_t)(a) - ((x) & ((uintptr_t)(a) - 1U))))             \
-                ? ((x) + ((uintptr_t)(a) - ((x) & ((uintptr_t)(a) - 1U)))) \
-                : UINTPTR_MAX)                                             \
+#define ALIGN_UP(x, a)                                                              \
+    (((x) & ((uintptr_t)(a) - 1U))                                                  \
+         ? ((UINTPTR_MAX - (x) >= ((uintptr_t)(a) - ((x) & ((uintptr_t)(a) - 1U)))) \
+                ? ((x) + ((uintptr_t)(a) - ((x) & ((uintptr_t)(a) - 1U))))          \
+                : UINTPTR_MAX)                                                      \
          : (x))
 
 #define BITMAP_LEN       ((MAX_FRAMES) >> 5)  // 2^15
@@ -68,16 +67,14 @@ static void print_bitmap(uint16_t frame_start, uint16_t frame_stop) {
             serial_writestring("Address     Frame    Bitmap Value \n");
         }
         serial_printf("%lX  %u:    %lb\n", (unsigned long)frame_to_addr(frame),
-                      (unsigned)frame,
-                      (unsigned long)bitmap[frame_to_index(frame)]);
+                      (unsigned)frame, (unsigned long)bitmap[frame_to_index(frame)]);
     }
 }
 
 KERNEL_UNUSED KERNEL_COLD static void test_alignment(void) {
     serial_writestring("aligning onto 8\n");
     for (uint8_t n = 0; n < UINT8_MAX; n++) {
-        serial_printf("n: %b    aligned_up: %lb\n", n,
-                      (unsigned long)ALIGN_UP(n, 8));
+        serial_printf("n: %b    aligned_up: %lb\n", n, (unsigned long)ALIGN_UP(n, 8));
     }
     for (uint8_t n = 0; n < UINT8_MAX; n++) {
         serial_printf("n: %x    aligned_down: %x\n", n, ALIGN_DOWN(n, 8));
@@ -128,8 +125,7 @@ static void mark_free(uintptr_t addr, uintptr_t len) {
 }
 
 KERNEL_UNUSED static bool is_frame_in_use(uintptr_t frame) {
-    return bitmap[frame_to_index(frame)] &
-           (1u << (frame % 32));  // non-zero → in use
+    return bitmap[frame_to_index(frame)] & (1u << (frame % 32));  // non-zero → in use
 }
 
 KERNEL_UNUSED static void test_frames(void) {
@@ -160,18 +156,14 @@ void pmm_init(KERNEL_UNUSED multiboot_info_t *mbi) {
     memset(bitmap, 0xFF, sizeof(bitmap));  // mark all frames used
 
     if (mbi->flags & (1 << 6)) {
-        multiboot_mmap_entry_t *mmap_start =
-            (multiboot_mmap_entry_t *)mbi->mmap_addr;
+        multiboot_mmap_entry_t *mmap_start = (multiboot_mmap_entry_t *)mbi->mmap_addr;
         multiboot_mmap_entry_t *entry = mmap_start;
         uint32_t offset = 0;
 
         while (offset < mbi->mmap_length) {
             if (entry->type == MULTIBOOT_MEMORY_AVAILABLE) {  // available ram
-                entry =
-                    (multiboot_mmap_entry_t *)(uintptr_t)entry + entry->size +
-                    sizeof(
-                        entry
-                            ->size);  // cast to non-pointer type for arithmetic
+                entry = (multiboot_mmap_entry_t *)(uintptr_t)entry + entry->size +
+                        sizeof(entry->size);  // cast to non-pointer type for arithmetic
             }
         }
     } else {

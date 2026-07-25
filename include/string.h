@@ -13,8 +13,7 @@
 void *memcpy(void *restrict dest, const void *restrict src,
              size_t n) KERNEL_WUNUSED KERNEL_RET_NONNULL KERNEL_NONNULL;
 
-void *memmove(void *dest, const void *src,
-              size_t n) KERNEL_RET_NONNULL KERNEL_NONNULL;
+void *memmove(void *dest, const void *src, size_t n) KERNEL_RET_NONNULL KERNEL_NONNULL;
 
 void *memset(void *s, int c, size_t n) KERNEL_RET_NONNULL KERNEL_NONNULL;
 

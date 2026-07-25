@@ -23,8 +23,8 @@ static gdt_entry_t gdt[N_GDT_ENTRIES];
 
 static gdt_ptr_t gdt_ptr = {.limit = sizeof(gdt) - 1, .base = (uint32_t)gdt};
 
-static void gdt_set_gate(size_t index, uint32_t base, uint32_t limit,
-                         uint8_t access, uint8_t flags) {
+static void gdt_set_gate(size_t index, uint32_t base, uint32_t limit, uint8_t access,
+                         uint8_t flags) {
     gdt[index].limit_low = (uint16_t)(limit & 0x0000FFFF);
     gdt[index].base_low = (uint16_t)(base & 0x0000FFFF);
     gdt[index].base_mid = (uint8_t)((base & 0x00FF0000) >> 16);

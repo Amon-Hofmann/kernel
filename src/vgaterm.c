@@ -11,8 +11,7 @@
 
 #define VGA_MEM_ADDRESS (0xB8000)
 
-static volatile uint16_t *vga =
-    (volatile uint16_t *)VGA_MEM_ADDRESS;  // VGA MEM Address
+static volatile uint16_t *vga = (volatile uint16_t *)VGA_MEM_ADDRESS;  // VGA MEM Address
 
 static uint16_t s_vga_term_attribute = 0;
 static uint8_t s_vga_term_cursor_column = 0;
@@ -23,16 +22,14 @@ void terminal_initialize(void) {
     s_vga_term_cursor_column = 0;
     terminal_set_attribute(terminal_light_grey, terminal_black);
 
-    for (uint16_t cursor = 0; cursor < TERMINAL_N_ROWS * TERMINAL_N_COLS;
-         cursor++) {
+    for (uint16_t cursor = 0; cursor < TERMINAL_N_ROWS * TERMINAL_N_COLS; cursor++) {
         terminal_putchar(' ');
     }
     s_vga_term_cursor_row = 0;
     s_vga_term_cursor_column = 0;
 }
 
-void terminal_set_attribute(const enum terminal_color fg,
-                            const enum terminal_color bg) {
+void terminal_set_attribute(const enum terminal_color fg, const enum terminal_color bg) {
     s_vga_term_attribute = (uint16_t)bg << 4 | (uint16_t)fg;
 }
 
@@ -41,8 +38,7 @@ static inline void terminal_inc_cursor(void) {
         s_vga_term_cursor_column = 0;
 
         if (s_vga_term_cursor_row >= TERMINAL_N_ROWS - 1) {
-            for (uint16_t i = 0; i < TERMINAL_N_COLS * (TERMINAL_N_ROWS - 1);
-                 i++) {
+            for (uint16_t i = 0; i < TERMINAL_N_COLS * (TERMINAL_N_ROWS - 1); i++) {
                 vga[i] = vga[i + TERMINAL_N_COLS];
             }
             for (uint8_t index = 0; index < TERMINAL_N_COLS; index++) {

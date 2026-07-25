@@ -4,7 +4,8 @@ SECTIONS
 {
     /* Kernel loaded at 1 MiB — below is BIOS/VGA territory */
     . = 1M;
-
+    
+    kernel_phys_start = .;
     .text BLOCK(4K) : ALIGN(4K)
     {
         *(.multiboot)   /* Multiboot header must come first */
@@ -26,4 +27,5 @@ SECTIONS
         *(COMMON)
         *(.bss)
     }
+    kernel_phys_end = .;
 }

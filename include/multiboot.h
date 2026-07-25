@@ -10,14 +10,14 @@
 #include <kernel_common.h>
 #include <stdint.h>
 
-typedef struct {
+typedef struct multiboot_mmap_entry_t {
     uint32_t size; /* byte length of this entry, not counting this field */
     uint64_t addr; /* base physical address of the region */
     uint64_t len;  /* length in bytes */
     uint32_t type; /* 1 = usable RAM, anything else = reserved */
 } KERNEL_PACKED multiboot_mmap_entry_t;
 
-typedef struct {
+typedef struct multiboot_info_t {
     uint32_t flags;        // @ offset 0 Bitmask of which fields below are valid
     uint32_t _[6];         // 4
     uint16_t syms;         // 28

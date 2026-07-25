@@ -35,7 +35,7 @@
 | 05 | PIC & IRQ routing | [x] | session-05-complete | PIC remapped to IRQs 32–47; IRQ stubs via isr_stubs.S; pic_send_eoi; keyboard IRQ1 requires port 0x60 drain before EOI |
 | 06 | PIT & timer interrupts | [x] | session-06-complete | mode 3 (0x36) at 100 Hz; volatile pit_ticks; ksleep_ms with unsigned subtraction for wrap-around; hlt in spin loop; 0x36 is mode 3 not mode 2 |
 | 07 | PS/2 keyboard | [x] | session-07-complete | Set 1 scancodes; make/break via bit 7; lower/upper tables; shift held + caps toggle; XOR for caps+shift interaction; QEMU doesn't faithfully emulate i8042 IRQ assertion |
-| 08 | Serial / UART debug output | [ ] | | |
+| 08 | Serial / UART debug output | [x] | session-08-complete | serial_printf with %d/%c; int32_t = long int on i686-elf so %d needs plain int; __attribute__((format(printf,1,2))) for compile-time checks |
 
 ---
 
@@ -43,7 +43,7 @@
 
 | # | Session | Status | Tag | Notes |
 |---|---------|--------|-----|-------|
-| 09 | Physical memory manager | [ ] | | |
+| 09 | Physical memory manager | [x] | session-09-complete | bitmap allocator; Multiboot mmap walk; ALIGN_UP overflow-safe with UINTPTR_MAX sentinel; uintptr_t throughout (uint16_t truncates frame numbers >65535); cast pointer to uintptr_t before byte arithmetic or C does struct-stride pointer arithmetic; offset must be captured before advancing entry pointer |
 | 10 | Paging | [ ] | | |
 | 11 | Kernel heap (kmalloc/kfree) | [ ] | | |
 | 12 | Higher-half kernel (optional) | [ ] | | |

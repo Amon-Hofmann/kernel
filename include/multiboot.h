@@ -18,12 +18,12 @@ typedef struct {
 } KERNEL_PACKED multiboot_mmap_entry_t;
 
 typedef struct {
-    uint32_t flags;        // @ offset 0
+    uint32_t flags;        // @ offset 0 Bitmask of which fields below are valid
     uint32_t _[6];         // 4
     uint16_t syms;         // 28
     uint16_t __[7];        // 30
-    uint32_t mmap_length;  // 44
-    uint32_t mmap_addr;    // 48
+    uint32_t mmap_length;  // 44 Byte length of the memory map array
+    uint32_t mmap_addr;    // 48 Physical address of the first entry
 } KERNEL_PACKED multiboot_info_t;
 
 #define MULTIBOOT_MEMORY_AVAILABLE 1

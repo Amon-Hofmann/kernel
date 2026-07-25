@@ -37,17 +37,6 @@ void kernel_main(KERNEL_UNUSED uint32_t magic, multiboot_info_t *mbi) {
     terminal_writestring("Hello, Kernel!");
 
     pmm_init(mbi);
-    extern uint32_t kernel_phys_start;
-    extern uint32_t kernel_phys_end;
-    uintptr_t frame_addr;
-    uintptr_t *kernel_start = &kernel_phys_start;
-    uintptr_t *kernel_end = &kernel_phys_end;
-    serial_printf("kernel start: %lX\n kernel end: %lX\n", (long unsigned)kernel_start,
-                  (long unsigned)kernel_end);
-    for (uint8_t i = 0; i < 5; i++) {
-        frame_addr = pmm_alloc_frame();
-        serial_printf("i: %u   frame_addr: %lu\n", i, (long unsigned)frame_addr);
-    }
     while (true) {
         serial_printf("Tick: %lu \n", (long unsigned)pit_get_ticks());
         ksleep_ms(1000);

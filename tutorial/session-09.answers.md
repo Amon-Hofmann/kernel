@@ -15,6 +15,10 @@
 
 ## Mutation exercise
 
-- A: 
+- A: the first allocated frame starts directly at 1Mib
+     Any write to these frames corrupts the running kernel image.
 
-- B: 
+- B: This time the allocate frames start at address 0. allocating 64 pages
+    starting from address 0 ranges until 0x0003F000. By that i covers many
+    standard (OSDevWiki) regions IVT, BDA. BootSector. Writing to any of 
+    these regions is a catastrophic error resulting in system state corruption.

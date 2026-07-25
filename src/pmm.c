@@ -11,9 +11,8 @@
 #include <stdbool.h>
 #include <string.h>
 
-#define FRAME_SIZE       ((uintptr_t)4096)
-#define MAX_FRAMES       ((uintptr_t)(1024U * 1024U)) /* 4 GiB / 4 KiB */
-#define MAX_ALLOWED_ADDR (UINTPTR_MAX)
+#define FRAME_SIZE ((uintptr_t)4096)
+#define MAX_FRAMES ((uintptr_t)(1024U * 1024U)) /* 4 GiB / 4 KiB */
 
 // addresses from 0 to (FRAME_SIZE * MAX_FRAMES) = 2^32
 
@@ -29,10 +28,6 @@
 #define BITMAP_MAX_INDEX (BITMAP_LEN - 1)
 
 // indices from 0 to BITMAP_LEN - 1 = 2^15
-
-#define PRINT_IN_USE(x)                                           \
-    (serial_printf("Frame %lu is %sin use\n", (unsigned long)(x), \
-                   is_frame_in_use(x) ? "" : "not "))
 
 static uint32_t bitmap[BITMAP_LEN]; /* 128 KiB */
 
@@ -71,21 +66,7 @@ static void print_bitmap(uint16_t frame_start, uint16_t frame_stop) {
     }
 }
 
-KERNEL_UNUSED KERNEL_COLD static void test_alignment(void) {
-    serial_writestring("aligning onto 8\n");
-    for (uint8_t n = 0; n < UINT8_MAX; n++) {
-        serial_printf("n: %b    aligned_up: %lb\n", n, (unsigned long)ALIGN_UP(n, 8));
-    }
-    for (uint8_t n = 0; n < UINT8_MAX; n++) {
-        serial_printf("n: %x    aligned_down: %x\n", n, ALIGN_DOWN(n, 8));
-    }
-}
-
 static void mark_used(uintptr_t addr, uintptr_t len) {
-    if (addr > MAX_ALLOWED_ADDR) {
-        serial_writestring("addr to big\n");
-        return;
-    }
     if (UINTPTR_MAX - len < addr) {
         serial_writestring("addr + len to big\n");
         return;
@@ -96,14 +77,6 @@ static void mark_used(uintptr_t addr, uintptr_t len) {
     uintptr_t aligned_end = ALIGN_UP(end_addr, FRAME_SIZE);
     uintptr_t stop_frame =
         (aligned_end == UINTPTR_MAX) ? MAX_FRAMES : addr_to_frame(aligned_end);
-
-#ifdef DEBUG
-    serial_printf("addr:        %lX\n", (unsigned long)addr);
-    serial_printf("end addr:    %lX\n", (unsigned long)end_addr);
-    serial_printf("start frame: %lX\n", (unsigned long)start_frame);
-    serial_printf("stop_frame:  %lX\n", (unsigned long)stop_frame);
-#endif  // DEBUG
-
     for (uintptr_t frame = start_frame; frame < stop_frame; frame++) {
 #ifdef DEBUG
         serial_printf("marking frame %lu used\n", (unsigned long)frame);
@@ -128,35 +101,11 @@ KERNEL_UNUSED static bool is_frame_in_use(uintptr_t frame) {
     return bitmap[frame_to_index(frame)] & (1u << (frame % 32));  // non-zero → in use
 }
 
-KERNEL_UNUSED static void test_frames(void) {
-    mark_used(0, 5);
-    PRINT_IN_USE(0);
-
-    mark_used(10, 50 * FRAME_SIZE + 10);
-    PRINT_IN_USE(0);
-    // print_bitmap(0, 10);
-    serial_writestring("\n");
-
-    mark_free(10, 50 * FRAME_SIZE + 10);
-    PRINT_IN_USE(0);
-    PRINT_IN_USE(49);
-    PRINT_IN_USE(50);
-    // print_bitmap(0, 10);
-    serial_writestring("\n");
-
-    serial_writestring("max - frame_size\n");
-    mark_used(MAX_ALLOWED_ADDR - 10, 9);
-    PRINT_IN_USE(addr_to_frame(MAX_ALLOWED_ADDR));
-    print_bitmap(addr_to_frame(ALIGN_DOWN(MAX_ALLOWED_ADDR - 10, FRAME_SIZE)),
-                 addr_to_frame(MAX_ALLOWED_ADDR));
-    serial_writestring("done\n");
-}
-
 void pmm_init(KERNEL_UNUSED multiboot_info_t *mbi) {
     // mark all frames used
     memset(bitmap, 0xFF, sizeof(bitmap));
 
-    // mark frames free marked as available in multiboot header
+    // mark frames free, marked as available in multiboot header
     if (mbi->flags & (1 << 6)) {
         multiboot_mmap_entry_t *mmap_start = (multiboot_mmap_entry_t *)mbi->mmap_addr;
         multiboot_mmap_entry_t *entry = mmap_start;
@@ -191,7 +140,7 @@ void pmm_init(KERNEL_UNUSED multiboot_info_t *mbi) {
         serial_writestring("multiboot mmap header not valid!");
     }
 
-    // remark used where we know better than multiboot
+    // re-mark used where we know better than multiboot
     // first 1MiB
     mark_used(0, 1024 * 1024 - 1);
 
@@ -204,7 +153,7 @@ void pmm_init(KERNEL_UNUSED multiboot_info_t *mbi) {
                  addr_to_frame(ALIGN_UP(1024 * 1024 - 1, FRAME_SIZE)));
 }
 
-KERNEL_WUNUSED uintptr_t pmm_alloc_frame(void) {
+uintptr_t pmm_alloc_frame(void) {
     for (size_t i = 0; i < MAX_FRAMES / 32; i++) {
         if (bitmap[i] == 0xFFFFFFFF) continue;
         uint32_t bit = __builtin_ctz(~bitmap[i]);

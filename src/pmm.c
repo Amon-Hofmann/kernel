@@ -149,8 +149,6 @@ void pmm_init(KERNEL_UNUSED multiboot_info_t *mbi) {
 
     // kernel .text, .rodata, .data and .bss
     mark_used(ks, ke - ks);
-    print_bitmap(addr_to_frame(ALIGN_DOWN(1024 * 1024 - 1 - 3 * FRAME_SIZE, FRAME_SIZE)),
-                 addr_to_frame(ALIGN_UP(1024 * 1024 - 1, FRAME_SIZE)));
 }
 
 uintptr_t pmm_alloc_frame(void) {

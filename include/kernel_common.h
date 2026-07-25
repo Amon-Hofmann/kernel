@@ -16,5 +16,6 @@
 #define KERNEL_HOT         __attribute__((hot))
 #define KERNEL_WUNUSED     __attribute__((warn_unused_result))
 #define KERNEL_RET_NONNULL __attribute__((returns_nonnull))
+#define KERNEL_ALIGN_PAGE  __attribute__((aligned(4096)))
 
 #endif  // KERNEL_COMMON_H

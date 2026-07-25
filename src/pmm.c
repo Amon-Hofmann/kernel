@@ -166,11 +166,12 @@ void pmm_init(KERNEL_UNUSED multiboot_info_t *mbi) {
 
         while (offset < mbi->mmap_length) {
             if (entry->addr > (uint64_t)UINT32_MAX) {
-                entry = (multiboot_mmap_entry_t *)((
-                    uintptr_t)(entry + entry->size +
-                               sizeof(entry->size)));  // cast to non-pointer type for
-                                                       // arithmetic
-                offset += ((uintptr_t)(entry + entry->size + sizeof(entry->size)));
+                entry =
+                    (multiboot_mmap_entry_t *)((uintptr_t)entry + entry->size +
+                                               sizeof(
+                                                   entry->size));  // cast to non-pointer
+                                                                   // type for arithmetic
+                offset += entry->size + sizeof(entry->size);
                 continue;
             }
             if (entry->type == MULTIBOOT_MEMORY_AVAILABLE) {  // available ram
@@ -180,11 +181,11 @@ void pmm_init(KERNEL_UNUSED multiboot_info_t *mbi) {
                           : (uintptr_t)entry->len;
                 mark_free(base, len);
             }
-            entry = (multiboot_mmap_entry_t *)((
-                uintptr_t)(entry + entry->size +
-                           sizeof(
-                               entry->size)));  // cast to non-pointer type for arithmetic
-            offset += ((uintptr_t)(entry + entry->size + sizeof(entry->size)));
+            entry =
+                (multiboot_mmap_entry_t
+                     *)((uintptr_t)entry + entry->size +
+                        sizeof(entry->size));  // cast to non-pointer type for arithmetic
+            offset += entry->size + sizeof(entry->size);
         }
     } else {
         serial_writestring("multiboot mmap header not valid!");
@@ -203,7 +204,7 @@ void pmm_init(KERNEL_UNUSED multiboot_info_t *mbi) {
                  addr_to_frame(ALIGN_UP(1024 * 1024 - 1, FRAME_SIZE)));
 }
 
-uintptr_t pmm_alloc_frame(void) {
+KERNEL_WUNUSED uintptr_t pmm_alloc_frame(void) {
     for (size_t i = 0; i < MAX_FRAMES / 32; i++) {
         if (bitmap[i] == 0xFFFFFFFF) continue;
         uint32_t bit = __builtin_ctz(~bitmap[i]);
@@ -212,4 +213,8 @@ uintptr_t pmm_alloc_frame(void) {
     }
     return 0; /* out of memory */
 }
-void pmm_free_frame(uintptr_t addr);
+
+void pmm_free_frame(uintptr_t addr) {
+    uintptr_t addr_start = ALIGN_DOWN(addr, FRAME_SIZE);
+    mark_free(addr_start, FRAME_SIZE);
+}

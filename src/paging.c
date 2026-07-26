@@ -30,6 +30,9 @@
 #define PDE_FIELD_READ_WRITE         (1)
 #define PDE_FIELD_PRESENT            (0)
 
+#define CR0_BIT_PAGING    (31)
+#define CR0_BIT_PROTECTED (0)
+
 KERNEL_ALIGN_PAGE KERNEL_UNUSED static uint32_t page_directory[1024];
 KERNEL_ALIGN_PAGE KERNEL_UNUSED static uint32_t page_table_0[1024];
 
@@ -43,12 +46,13 @@ void paging_init(void) {
     page_directory[0] =
         (uint32_t)page_table_0 | (1 << PDE_FIELD_PRESENT) | (1 << PDE_FIELD_READ_WRITE);
 
-    // load page directory address into cr3 and set cr0.pg
-    __asm__ volatile("mov %0, %%cr3" ::"r"(page_directory) : "memory");
+    // load page directory address into cr3 and set paging bit in cr0
     uint32_t cr0;
+    __asm__ volatile("mov %0, %%cr3" ::"r"(page_directory) : "memory");
     __asm__ volatile("mov %%cr0, %0" : "=r"(cr0));
-    cr0 |= 0x80000000;
+    cr0 |= (1 << CR0_BIT_PAGING);
     __asm__ volatile("mov %0, %%cr0" ::"r"(cr0) : "memory");
+    // paging active ...
 }
 
 void map_page(uint32_t virt, uint32_t phys, uint32_t flags);

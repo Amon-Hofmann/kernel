@@ -39,9 +39,6 @@ void kernel_main(KERNEL_UNUSED uint32_t magic, multiboot_info_t *mbi) {
 
     pmm_init(mbi);
     paging_init();
-    //  tigger page fault
-    volatile uint32_t *bad = (volatile uint32_t *)0xDEADB000;
-    (void)*bad;
     while (true) {
         serial_printf("Tick: %lu \n", (long unsigned)pit_get_ticks());
         ksleep_ms(1000);

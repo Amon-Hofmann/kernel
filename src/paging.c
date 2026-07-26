@@ -9,6 +9,7 @@
 #include <pmm.h>
 #include <serial.h>
 #include <string.h>
+#include <vgaterm.h>
 
 #define PAGE_DIR_LEN   (1024)
 #define PAGE_TABLE_LEN (1024)
@@ -33,8 +34,8 @@
 #define PDE_FIELD_READ_WRITE         (1)
 #define PDE_FIELD_PRESENT            (0)
 
-#define CR0_BIT_PAGING    (31)
-#define CR0_BIT_PROTECTED (0)
+#define CR0_BIT_PAGING        (31)
+#define CR0_BIT_WRITE_PROTECT (16)
 
 KERNEL_ALIGN_PAGE KERNEL_UNUSED static uint32_t page_directory[1024] = {0};
 KERNEL_ALIGN_PAGE KERNEL_UNUSED static uint32_t page_table_0[1024] = {0};
@@ -44,6 +45,18 @@ KERNEL_INLINE void activate_paging(void) {
     __asm__ volatile("mov %0, %%cr3" ::"r"(page_directory) : "memory");
     __asm__ volatile("mov %%cr0, %0" : "=r"(cr0));
     cr0 |= (1u << CR0_BIT_PAGING);
+    __asm__ volatile("mov %0, %%cr0" ::"r"(cr0) : "memory");
+}
+
+KERNEL_INLINE void invalidate_page(uint32_t virt_addr) {
+    // invalidates the pages Translation Lookaside Buffer (cache)
+    __asm__ volatile("invlpg (%0)" ::"r"(virt_addr) : "memory");
+}
+
+KERNEL_UNUSED KERNEL_INLINE void enforce_write_protection(void) {
+    uint32_t cr0;
+    __asm__ volatile("mov %%cr0, %0" : "=r"(cr0));
+    cr0 |= (1u << CR0_BIT_WRITE_PROTECT);
     __asm__ volatile("mov %0, %%cr0" ::"r"(cr0) : "memory");
 }
 
@@ -59,11 +72,6 @@ KERNEL_COLD void paging_init(void) {
     // load page directory address into cr3 and set paging bit in cr0
     activate_paging();
     // paging active ...
-}
-
-KERNEL_INLINE void invalidate_page(uint32_t virt_addr) {
-    // invalidates the pages Translation Lookaside Buffer (cache)
-    __asm__ volatile("invlpg (%0)" ::"r"(virt_addr) : "memory");
 }
 
 KERNEL_INLINE uint32_t *get_addr_from_pde(uint32_t pde) {
@@ -93,7 +101,7 @@ void map_page(uint32_t virt, uint32_t phys, uint32_t flags) {
         // page dir entry is already present
         page_table_addr = (uint32_t)get_addr_from_pde(page_directory[dir_index]);
         uint32_t *page_table = (uint32_t *)page_table_addr;
-        if (!( page_table[tbl_index] & PAGE_PRESENT)) {
+        if (!(page_table[tbl_index] & PAGE_PRESENT)) {
             //  page table entry is not present
             //  install page table entry
             page_table[tbl_index] = 0 | (phys & ~0xFFFu) | PAGE_PRESENT | flags;

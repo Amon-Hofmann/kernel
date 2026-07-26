@@ -15,6 +15,8 @@
 
 ## Mutation exercise
 
-- A:
+- A: Causes a page fault: Not Present read in supervisor mode
 
-- B: 
+- B: PAGE FAULT at 0x0x000B801C
+  error: protection violation write in supervisor mode
+

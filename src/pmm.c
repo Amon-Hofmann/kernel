@@ -55,7 +55,7 @@ KERNEL_UNUSED KERNEL_INLINE uint16_t addr_to_index(uintptr_t addr) {
     return (uint16_t)(addr >> 17);
 }
 
-static void print_bitmap(uint16_t frame_start, uint16_t frame_stop) {
+KERNEL_UNUSED static void print_bitmap(uint16_t frame_start, uint16_t frame_stop) {
     for (uint16_t frame = frame_start; frame < frame_stop && frame < BITMAP_LEN;
          frame++) {
         if (frame == frame_start) {

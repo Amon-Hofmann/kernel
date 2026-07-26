@@ -10,8 +10,8 @@
 #include <serial.h>
 #include <string.h>
 
-#define PAGE_DIR_LEN     (1024)
-#define PAGE_TABLE_0_LEN (1024)
+#define PAGE_DIR_LEN   (1024)
+#define PAGE_TABLE_LEN (1024)
 
 #define PAGE_SIZE (4096)
 
@@ -49,7 +49,7 @@ KERNEL_INLINE void activate_paging(void) {
 
 KERNEL_COLD void paging_init(void) {
     // set identity map for pages 0x00000 - 0x00400
-    for (uint32_t p = 0; p < PAGE_TABLE_0_LEN; p++) {
+    for (uint32_t p = 0; p < PAGE_TABLE_LEN; p++) {
         page_table_0[p] = 0 | (p * PAGE_SIZE) | PAGE_PRESENT | PAGE_WRITABLE;
     }
     // install page directory entry 0
@@ -69,7 +69,7 @@ KERNEL_INLINE void invalidate_page(uint32_t virt_addr) {
 void map_page(uint32_t virt, uint32_t phys, uint32_t flags) {
     uint16_t dir_index = (uint16_t)((virt & 0xFFC00000u) >> 22);  // 10 bits 31-22
     uint16_t tbl_index = (uint16_t)((virt & 0x003FF000u) >> 12);  // 10 bits 21-12
-    uint32_t page_table = 0;
+    uint32_t page_table_addr = 0;
 
     if ((page_directory[dir_index] & PAGE_PRESENT)) {  // Page Dir Entry already present
         serial_printf("Virtual Address %lX already mapped!\n", (unsigned long)virt);
@@ -78,10 +78,11 @@ void map_page(uint32_t virt, uint32_t phys, uint32_t flags) {
     }
 
     // install page directory entry
-    page_table = pmm_alloc_frame();
-    memset((void*)page_table, 0, PAGE_SIZE);
-    page_directory[dir_index] = 0 | (page_table & ~0xFFFu) | PAGE_PRESENT | flags;
-    page_directory[tbl_index] = 0 | (phys & ~0xFFFu) | PAGE_PRESENT | flags;
+    page_table_addr = pmm_alloc_frame();
+    memset((void *)page_table_addr, 0, PAGE_SIZE);
+    page_directory[dir_index] = 0 | (page_table_addr & ~0xFFFu) | PAGE_PRESENT | flags;
+    uint32_t *page_table = (uint32_t *)page_table_addr;
+    page_table[tbl_index] = 0 | (phys & ~0xFFFu) | PAGE_PRESENT | flags;
 
     invalidate_page(virt);
 }

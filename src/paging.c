@@ -6,6 +6,9 @@
 
 #include <kernel_common.h>
 #include <paging.h>
+#include <pmm.h>
+#include <serial.h>
+#include <string.h>
 
 #define PAGE_DIR_LEN     (1024)
 #define PAGE_TABLE_0_LEN (1024)
@@ -33,26 +36,51 @@
 #define CR0_BIT_PAGING    (31)
 #define CR0_BIT_PROTECTED (0)
 
-KERNEL_ALIGN_PAGE KERNEL_UNUSED static uint32_t page_directory[1024];
-KERNEL_ALIGN_PAGE KERNEL_UNUSED static uint32_t page_table_0[1024];
+KERNEL_ALIGN_PAGE KERNEL_UNUSED static uint32_t page_directory[1024] = {0};
+KERNEL_ALIGN_PAGE KERNEL_UNUSED static uint32_t page_table_0[1024] = {0};
 
-void paging_init(void) {
-    // set identity map for pages 0x00000 - 0x00400
-    for (uint32_t p = 0; p < PAGE_TABLE_0_LEN; p++) {
-        page_table_0[p] =
-            0 | (p * PAGE_SIZE) | (1u << PTE_FIELD_PRESENT) | (1u << PTE_FIELD_READ_WRITE);
-    }
-    // install page directory
-    page_directory[0] =
-        (uint32_t)page_table_0 | (1u << PDE_FIELD_PRESENT) | (1u << PDE_FIELD_READ_WRITE);
-
-    // load page directory address into cr3 and set paging bit in cr0
+KERNEL_INLINE void activate_paging(void){
     uint32_t cr0;
     __asm__ volatile("mov %0, %%cr3" ::"r"(page_directory) : "memory");
     __asm__ volatile("mov %%cr0, %0" : "=r"(cr0));
     cr0 |= (1u << CR0_BIT_PAGING);
     __asm__ volatile("mov %0, %%cr0" ::"r"(cr0) : "memory");
+}
+
+KERNEL_COLD void paging_init(void) {
+    // set identity map for pages 0x00000 - 0x00400
+    for (uint32_t p = 0; p < PAGE_TABLE_0_LEN; p++) {
+        page_table_0[p] = 0 | (p * PAGE_SIZE) | PAGE_PRESENT | PAGE_WRITABLE;
+    }
+    // install page directory entry 0
+    page_directory[0] =
+        (uint32_t)page_table_0 | (1u << PDE_FIELD_PRESENT) | (1u << PDE_FIELD_READ_WRITE);
+
+    // load page directory address into cr3 and set paging bit in cr0
+    activate_paging();
     // paging active ...
 }
 
-void map_page(uint32_t virt, uint32_t phys, uint32_t flags);
+KERNEL_INLINE void invalidate_page(uint32_t virt_addr){
+    __asm__ volatile("invlpg (%0)" :: "r"(virt_addr) : "memory");
+}
+
+void map_page(uint32_t virt, uint32_t phys, uint32_t flags) {
+    uint16_t dir_index = (uint16_t)((virt & 0xFFC00000u) >> 22);  // 10 bits 31-22
+    uint16_t tbl_index = (uint16_t)((virt & 0x003FF000u) >> 12);  // 10 bits 21-12
+    uint32_t page_table = 0;
+
+    if ((page_directory[dir_index] & PAGE_PRESENT) ) {  // Page Dir Entry already present
+        serial_printf("Virtual Address %lX already mapped!\n", (unsigned long)virt);
+        serial_writestring("halting...\n");
+        __asm__ volatile("hlt");
+    }
+
+    // install page directory entry
+    page_table = pmm_alloc_frame();
+    memset((void*)page_table, 0, PAGE_SIZE);
+    page_directory[dir_index] = 0 | (page_table & ~0xFFFu) | PAGE_PRESENT | flags;
+    page_directory[tbl_index] = 0 | (phys & ~0xFFFu) | PAGE_PRESENT | flags;
+
+    invalidate_page(virt);
+}

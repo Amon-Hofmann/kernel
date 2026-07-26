@@ -40,17 +40,17 @@ void paging_init(void) {
     // set identity map for pages 0x00000 - 0x00400
     for (uint32_t p = 0; p < PAGE_TABLE_0_LEN; p++) {
         page_table_0[p] =
-            0 | (p * PAGE_SIZE) | (1 << PTE_FIELD_PRESENT) | (1 << PTE_FIELD_READ_WRITE);
+            0 | (p * PAGE_SIZE) | (1u << PTE_FIELD_PRESENT) | (1u << PTE_FIELD_READ_WRITE);
     }
     // install page directory
     page_directory[0] =
-        (uint32_t)page_table_0 | (1 << PDE_FIELD_PRESENT) | (1 << PDE_FIELD_READ_WRITE);
+        (uint32_t)page_table_0 | (1u << PDE_FIELD_PRESENT) | (1u << PDE_FIELD_READ_WRITE);
 
     // load page directory address into cr3 and set paging bit in cr0
     uint32_t cr0;
     __asm__ volatile("mov %0, %%cr3" ::"r"(page_directory) : "memory");
     __asm__ volatile("mov %%cr0, %0" : "=r"(cr0));
-    cr0 |= (1 << CR0_BIT_PAGING);
+    cr0 |= (1u << CR0_BIT_PAGING);
     __asm__ volatile("mov %0, %%cr0" ::"r"(cr0) : "memory");
     // paging active ...
 }

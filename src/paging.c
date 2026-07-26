@@ -66,23 +66,44 @@ KERNEL_INLINE void invalidate_page(uint32_t virt_addr) {
     __asm__ volatile("invlpg (%0)" ::"r"(virt_addr) : "memory");
 }
 
+KERNEL_INLINE uint32_t *get_addr_from_pde(uint32_t pde) {
+    return (uint32_t *)(pde & 0xFFFFF000u);
+}
+
+KERNEL_UNUSED KERNEL_INLINE uint32_t *get_addr_from_pte(uint32_t pte) {
+    return (uint32_t *)(pte & 0xFFFFF000u);
+}
+
 void map_page(uint32_t virt, uint32_t phys, uint32_t flags) {
     uint16_t dir_index = (uint16_t)((virt & 0xFFC00000u) >> 22);  // 10 bits 31-22
     uint16_t tbl_index = (uint16_t)((virt & 0x003FF000u) >> 12);  // 10 bits 21-12
     uint32_t page_table_addr = 0;
 
-    if ((page_directory[dir_index] & PAGE_PRESENT)) {  // Page Dir Entry already present
-        serial_printf("Virtual Address %lX already mapped!\n", (unsigned long)virt);
-        serial_writestring("halting...\n");
-        __asm__ volatile("hlt");
+    if (!(page_directory[dir_index] & PAGE_PRESENT)) {
+        // page dir entry is not present ->
+        // install page directory entry (allocate page table entry)
+        page_table_addr = pmm_alloc_frame();
+        memset((void *)page_table_addr, 0, PAGE_SIZE);
+        page_directory[dir_index] =
+            0 | (page_table_addr & ~0xFFFu) | PAGE_PRESENT | flags;
+        uint32_t *page_table = (uint32_t *)page_table_addr;
+        page_table[tbl_index] = 0 | (phys & ~0xFFFu) | PAGE_PRESENT | flags;
+
+    } else {
+        // page dir entry is already present
+        page_table_addr = (uint32_t)get_addr_from_pde(page_directory[dir_index]);
+        uint32_t *page_table = (uint32_t *)page_table_addr;
+        if (!( page_table[tbl_index] & PAGE_PRESENT)) {
+            //  page table entry is not present
+            //  install page table entry
+            page_table[tbl_index] = 0 | (phys & ~0xFFFu) | PAGE_PRESENT | flags;
+
+        } else {
+            //  page table entry is already present -> already mapped -> bad
+            serial_printf("Virtual Address %lX already mapped!\n", (unsigned long)virt);
+            serial_writestring("halting...\n");
+            __asm__ volatile("hlt");
+        }
     }
-
-    // install page directory entry
-    page_table_addr = pmm_alloc_frame();
-    memset((void *)page_table_addr, 0, PAGE_SIZE);
-    page_directory[dir_index] = 0 | (page_table_addr & ~0xFFFu) | PAGE_PRESENT | flags;
-    uint32_t *page_table = (uint32_t *)page_table_addr;
-    page_table[tbl_index] = 0 | (phys & ~0xFFFu) | PAGE_PRESENT | flags;
-
     invalidate_page(virt);
 }

@@ -39,7 +39,7 @@
 KERNEL_ALIGN_PAGE KERNEL_UNUSED static uint32_t page_directory[1024] = {0};
 KERNEL_ALIGN_PAGE KERNEL_UNUSED static uint32_t page_table_0[1024] = {0};
 
-KERNEL_INLINE void activate_paging(void){
+KERNEL_INLINE void activate_paging(void) {
     uint32_t cr0;
     __asm__ volatile("mov %0, %%cr3" ::"r"(page_directory) : "memory");
     __asm__ volatile("mov %%cr0, %0" : "=r"(cr0));
@@ -61,8 +61,9 @@ KERNEL_COLD void paging_init(void) {
     // paging active ...
 }
 
-KERNEL_INLINE void invalidate_page(uint32_t virt_addr){
-    __asm__ volatile("invlpg (%0)" :: "r"(virt_addr) : "memory");
+KERNEL_INLINE void invalidate_page(uint32_t virt_addr) {
+    // invalidates the pages Translation Lookaside Buffer (cache)
+    __asm__ volatile("invlpg (%0)" ::"r"(virt_addr) : "memory");
 }
 
 void map_page(uint32_t virt, uint32_t phys, uint32_t flags) {
@@ -70,7 +71,7 @@ void map_page(uint32_t virt, uint32_t phys, uint32_t flags) {
     uint16_t tbl_index = (uint16_t)((virt & 0x003FF000u) >> 12);  // 10 bits 21-12
     uint32_t page_table = 0;
 
-    if ((page_directory[dir_index] & PAGE_PRESENT) ) {  // Page Dir Entry already present
+    if ((page_directory[dir_index] & PAGE_PRESENT)) {  // Page Dir Entry already present
         serial_printf("Virtual Address %lX already mapped!\n", (unsigned long)virt);
         serial_writestring("halting...\n");
         __asm__ volatile("hlt");

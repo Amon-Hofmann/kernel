@@ -46,11 +46,25 @@ static const char *const itr_names[32] = {"Divide Error",
                                           "Reserved"};
 
 KERNEL_COLD KERNEL_NORETURN void exception_handler(struct interrupt_frame *frame) {
-    serial_printf("EXCEPTION: %s (#%lx)\n", itr_names[frame->vector],
-                  (unsigned long)frame->vector);
-    serial_printf("EIP: %lX CS: %lX EFLAGS: %lX ERR: %lX\n", (unsigned long)frame->eip,
-                  (unsigned long)frame->cs, (unsigned long)frame->eflags,
-                  (unsigned long)frame->error_code);
+    uint32_t cr2 = 0;  // needed for case 14
+    switch (frame->vector) {
+        case 14:  // page fault
+            __asm__ volatile("mov %%cr2, %0" : "=r"(cr2));
+            serial_printf("PAGE FAULT at 0x%lX\n", (unsigned long)cr2);
+            serial_printf("  error: %s %s in %s mode\n",
+                          frame->error_code & 1 ? "protection violation" : "not-present",
+                          frame->error_code & 2 ? "write" : "read",
+                          frame->error_code & 4 ? "user" : "supervisor");
+            /* fall through to generic halt */
+            break;
+        default:
+            serial_printf("EXCEPTION: %s (#%lx)\n", itr_names[frame->vector],
+                          (unsigned long)frame->vector);
+            serial_printf("EIP: %lX CS: %lX EFLAGS: %lX ERR: %lX\n",
+                          (unsigned long)frame->eip, (unsigned long)frame->cs,
+                          (unsigned long)frame->eflags, (unsigned long)frame->error_code);
+            break;
+    }
     __asm__ volatile("cli\n\t1: hlt\n\tjmp 1b");
     __builtin_unreachable();
 }

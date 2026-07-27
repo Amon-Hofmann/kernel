@@ -394,11 +394,24 @@ page tables. Identity-mapped for now.
 inside the kernel.
 
 **Topics covered:**
-- Virtual vs. physical addresses — why we need a mapping layer
-- `kvmalloc`: mapping physical frames into virtual address space
-- A slab or simple linked-list allocator over the virtual heap region
-- Alignment requirements
-- Testing: allocate structs, free them, check for leaks
+- Why `pmm_alloc_frame` cannot serve sub-page allocations
+- Virtual heap region: `KHEAP_VIRT_START = 0x00400000` (above identity map)
+- Block header with magic, used flag, size, and doubly-linked next/prev
+- Struct padding: why `sizeof(heap_block_t)` is 20, not 17
+- `heap_extend`: `pmm_alloc_frame` + `map_page` to grow the virtual heap on demand
+- First-fit scan with splitting; split threshold = `sizeof(heap_block_t) + 4`
+- Coalescing on `kfree`: merge with adjacent free neighbours to prevent fragmentation
+- Magic-number validation in `kfree` to detect double-free and bad pointers
+- Alignment: round all sizes to multiples of 4 (sufficient for i386 ABI)
+
+**Concept checks:**
+1. Where does the compiler insert padding in `heap_block_t` and why?
+2. How does `(heap_block_t *)ptr - 1` recover the header from the pointer `kmalloc` returned?
+3. Concrete fragmentation scenario: specific alloc/free sequence that defeats `kmalloc(64)` without coalescing.
+
+**Mutation exercises:**
+- A: Remove splitting — observe internal fragmentation exhausting the heap early.
+- B: Remove coalescing — observe external fragmentation defeating a request that would otherwise fit.
 
 ---
 

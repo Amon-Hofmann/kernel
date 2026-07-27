@@ -44,7 +44,7 @@
 | # | Session | Status | Tag | Notes |
 |---|---------|--------|-----|-------|
 | 09 | Physical memory manager | [x] | session-09-complete | bitmap allocator; Multiboot mmap walk; ALIGN_UP overflow-safe with UINTPTR_MAX sentinel; uintptr_t throughout (uint16_t truncates frame numbers >65535); cast pointer to uintptr_t before byte arithmetic or C does struct-stride pointer arithmetic; offset must be captured before advancing entry pointer |
-| 10 | Paging | [ ] | | |
+| 10 | Paging | [x] | session-10-complete | two-level page table; identity map first 4 MiB; CR3 + CR0.PG enable sequence; map_page with PMM-backed page table allocation; invlpg for TLB invalidation; CR2 + error code decode in #PF handler; CR0.WP required for R/W enforcement in ring 0 (supervisor writes ignore R/W bit without it) |
 | 11 | Kernel heap (kmalloc/kfree) | [ ] | | |
 | 12 | Higher-half kernel (optional) | [ ] | | |
 

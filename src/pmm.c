@@ -151,6 +151,7 @@ void pmm_init(KERNEL_UNUSED multiboot_info_t *mbi) {
     mark_used(ks, ke - ks);
 }
 
+// @brief allocates a page and returns its start address
 uintptr_t pmm_alloc_frame(void) {
     for (size_t i = 0; i < MAX_FRAMES / 32; i++) {
         if (bitmap[i] == 0xFFFFFFFF) continue;

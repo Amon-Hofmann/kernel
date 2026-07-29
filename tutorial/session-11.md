@@ -118,7 +118,7 @@ After `kheap_init` maps 4 pages (16 KiB) and `kmalloc(64)` is called once:
 │ heap_block_t  (20 B)                    │
 │   magic = 0xDEADC0DE                    │
 │   used  = false                         │
-│   size  = 16364 - 64 - 20 = 16280      │   (16 KiB minus A's header+usable and B's header)
+│   size  = 16364 - 64 - 20 = 16280       │   (16 KiB minus A's header+usable and B's header)
 │   prev  ◄─────────────────────────────  │ (back to A)
 │   next  = NULL                          │
 ├─────────────────────────────────────────┤ 0x00400068  ← returned next time, if used
